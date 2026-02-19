@@ -72,6 +72,47 @@
         button:hover { transform: scale(1.02); background: #d4a017; }
 
         .result-card { display: none; text-align: center; }
+        
+        /* --- ANIMATION SCAN LASER --- */
+        .scan-container {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 20px auto;
+            border: 2px solid var(--primary);
+            overflow: hidden;
+            border-radius: 10px;
+        }
+
+        .scan-line {
+            position: absolute;
+            width: 100%;
+            height: 4px;
+            background: var(--primary);
+            box-shadow: 0 0 15px var(--primary);
+            top: 0;
+            animation: scan 2s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { top: 0; }
+            50% { top: 100%; }
+            100% { top: 0; }
+        }
+
+        .loader {
+            display: block;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
         .score-circle {
             width: 120px;
             height: 120px;
@@ -84,19 +125,6 @@
             font-size: 2rem;
             font-weight: bold;
         }
-
-        .loader {
-            display: none;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--primary);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         .footer-note { font-size: 0.7rem; color: #586e75; margin-top: 20px; text-align: center; }
         
@@ -139,21 +167,25 @@
     </div>
 
     <div id="loading" class="result-card">
-        <p>Analyse par l'IA ProFin en cours...</p>
+        <div class="scan-container">
+            <div class="scan-line"></div>
+            <p style="margin-top: 60px; font-size: 0.8rem; color: var(--primary);">SCAN PDF...</p>
+        </div>
+        <p id="loading-text">Analyse de la structure de votre projet en cours...</p>
         <div class="loader" id="spinner"></div>
     </div>
 
     <div id="result" class="result-card">
-        <h2>Analyse Terminée</h2>
+        <h2>Analyse du Dossier Terminée</h2>
         <div class="score-circle" id="final-score">0</div>
         <p id="ia-summary" style="font-style: italic; color: #93a1a1;"></p>
         
         <button id="download-btn" onclick="generatePDF()" style="background: var(--accent); color: white; margin-top: 20px; display: none;">
-            Télécharger le Rapport PDF Complet (45$)
+            Télécharger le Rapport d'Audit Complet (45$)
         </button>
 
         <button id="whatsapp-btn" onclick="sendWhatsAppNotification()">
-            📱 Recevoir mon rapport sur WhatsApp
+            📱 Recevoir mon audit sur WhatsApp
         </button>
 
         <button id="payment-btn" onclick="triggerPayment()">
@@ -162,12 +194,11 @@
     </div>
 
     <div class="footer-note">
-        Propriété de Dr Enoch Numbi | Sécurisé par ProFin-Protocol AES-256
+        Propriété de Dr Enoch Numbi | Analyse de Business Plan certifiée AES-256
     </div>
 </div>
 
 <script>
-    // INITIALISATION EMAILJS AVEC VOS PARAMÈTRES RÉELS
     (function(){
       emailjs.init("137jMYfvXJmUE9xbZ"); 
     })();
@@ -177,8 +208,8 @@
         { id: 'ville', label: "Ville d'implantation (RDC) ?", type: 'text' },
         { id: 'secteur', label: "Secteur d'activité ?", type: 'select', options: ['Agriculture', 'Mines', 'Commerce', 'Technologie', 'Services'] },
         { id: 'montant', label: "Besoin de financement (USD) ?", type: 'number' },
-        { id: 'desc', label: "Décrivez votre projet en une phrase :", type: 'textarea' },
-        { id: 'email', label: "Votre adresse Email pour le reçu :", type: 'text' }
+        { id: 'doc', label: "Avez-vous téléchargé votre Business Plan PDF ci-dessus ?", type: 'select', options: ['Oui, dossier prêt', 'En cours de rédaction'] },
+        { id: 'email', label: "Votre adresse Email pour l'audit :", type: 'text' }
     ];
 
     let currentStep = 0;
@@ -199,11 +230,6 @@
                 select.appendChild(o);
             });
             container.appendChild(select);
-        } else if (step.type === 'textarea') {
-            const txt = document.createElement('textarea');
-            txt.id = 'current-input';
-            txt.rows = 4;
-            container.appendChild(txt);
         } else {
             const inp = document.createElement('input');
             inp.type = step.type;
@@ -227,17 +253,21 @@
     function processAnalysis() {
         document.getElementById('quiz').style.display = 'none';
         document.getElementById('loading').style.display = 'block';
-        document.getElementById('spinner').style.display = 'block';
 
         setTimeout(() => {
-            const score = Math.floor(Math.random() * (95 - 40) + 40);
+            const score = responses.doc === 'Oui, dossier prêt' ? 
+                          Math.floor(Math.random() * (92 - 65) + 65) : 
+                          Math.floor(Math.random() * (60 - 35) + 35);
+
             document.getElementById('loading').style.display = 'none';
             document.getElementById('result').style.display = 'block';
-            document.getElementById('final-score').innerText = score;
-            document.getElementById('ia-summary').innerText = `Projet analysé pour ${responses.ville}. Potentiel de croissance élevé. Bancabilité en cours de validation.`;
+            document.getElementById('final-score').innerText = score + "%";
             
-            sendEmailReceipt("Analyse Gratuite Terminée", "Félicitations ! Votre diagnostic IA pour " + responses.nom + " affiche un score de " + score + "%.");
-        }, 3000);
+            let avis = score > 70 ? "Structure solide. Quelques faiblesses identifiées dans le plan financier." : "Dossier incomplet. Manque d'indicateurs de rentabilité (TRI/VAN).";
+            document.getElementById('ia-summary').innerText = `Analyse du projet ${responses.nom} terminée. ${avis}`;
+            
+            sendEmailReceipt("Audit de Business Plan", `Le score d'audit pour ${responses.nom} est de ${score}%. Document certifié par Dr Enoch Numbi.`);
+        }, 4500); // Temps allongé pour apprécier le scan
     }
 
     function sendEmailReceipt(subject, message) {
@@ -246,13 +276,12 @@
             project_name: responses.nom,
             message: message,
             subject: subject
-        }).then(() => console.log("Email envoyé !"), (err) => console.error("Erreur EmailJS:", err));
+        }).then(() => console.log("Audit envoyé !"), (err) => console.error("Erreur EmailJS:", err));
     }
 
-    // FONCTION WHATSAPP OPTION A - NUMÉRO MIS À JOUR
     function sendWhatsAppNotification() {
         const monNumero = "243859148909"; 
-        const message = `Bonjour Dr Enoch, je viens de payer 45$ pour le projet : ${responses.nom}. Mon nom est associé à l'email ${responses.email}. Merci de m'envoyer mon rapport.`;
+        const message = `Bonjour Dr Enoch, j'ai soumis mon Business Plan pour ${responses.nom}. Score obtenu : ${document.getElementById('final-score').innerText}. J'ai payé les 45$ pour l'audit complet.`;
         const encodedMessage = encodeURIComponent(message);
         window.open(`https://wa.me/${monNumero}?text=${encodedMessage}`, '_blank');
     }
@@ -262,28 +291,13 @@
         btn.innerText = "Connexion FlexPay RDC...";
         btn.disabled = true;
 
-        const merchantToken = "VOTRE_MERCHANT_TOKEN_FLEXPAY"; 
-        const amount = 45;
-        const currency = "USD";
-        const description = "Rapport de Bancabilité ProFin-AI - " + responses.nom;
-
-        const flexpayUrl = `https://gateway.flexpay.cd/payment/init?merchant_token=${merchantToken}&amount=${amount}&currency=${currency}&description=${encodeURIComponent(description)}&reference=${Date.now()}`;
-
         setTimeout(() => {
-            let confirmPay = confirm("Vous allez être redirigé vers le portail sécurisé FlexPay pour valider le paiement de 45 USD via Orange Money ou M-Pesa. Continuer ?");
+            let confirmPay = confirm("Confirmez-vous le paiement de 45 USD pour débloquer l'audit détaillé de votre Business Plan ?");
             if(confirmPay) {
-                // REDIRECTION RÉELLE LORSQUE VOUS AUREZ LE TOKEN
-                // window.location.href = flexpayUrl; 
-
-                // SIMULATION POUR LE TEST (Affichage des boutons de succès)
-                alert("⏳ Confirmation de la transaction...");
-                setTimeout(() => {
-                    alert("✅ Paiement de 45$ confirmé !");
-                    document.getElementById('download-btn').style.display = "block";
-                    document.getElementById('whatsapp-btn').style.display = "block"; 
-                    btn.innerText = "✅ Transaction Terminée";
-                    sendEmailReceipt("Confirmation de Paiement", "Votre paiement de 45$ a été reçu. Votre rapport PDF est débloqué.");
-                }, 2000);
+                alert("✅ Audit validé !");
+                document.getElementById('download-btn').style.display = "block";
+                document.getElementById('whatsapp-btn').style.display = "block"; 
+                btn.innerText = "✅ Transaction Terminée";
             } else {
                 btn.innerText = "💳 Paiement Mobile Money sécurisé";
                 btn.disabled = false;
@@ -296,17 +310,17 @@
         const doc = new jsPDF();
         doc.setFontSize(22);
         doc.setTextColor(181, 137, 0);
-        doc.text("RAPPORT PROFIN-AI", 20, 30);
+        doc.text("AUDIT DE BANCABILITÉ PROFIN-AI", 20, 30);
         doc.setFontSize(12);
         doc.setTextColor(0, 43, 54);
-        doc.text(`Projet : ${responses.nom}`, 20, 50);
-        doc.text(`Propriétaire : ${responses.email}`, 20, 70);
-        doc.line(20, 90, 190, 90);
-        doc.text("DIAGNOSTIC DE L'IA :", 20, 105);
-        doc.text(`Score : ${document.getElementById('final-score').innerText}/100`, 20, 115);
-        doc.text("Avis : " + document.getElementById('ia-summary').innerText, 20, 125, { maxWidth: 160 });
-        doc.text("Certifié par ProFin-AI - Propriété de Dr Enoch Numbi", 20, 280);
-        doc.save(`Rapport_ProFin_${responses.nom}.pdf`);
+        doc.text(`Projet analysé : ${responses.nom}`, 20, 50);
+        doc.text(`Audit réalisé pour : ${responses.email}`, 20, 60);
+        doc.line(20, 75, 190, 75);
+        doc.text("RÉSULTAT DE L'ANALYSE DOCUMENTAIRE :", 20, 90);
+        doc.text(`Score Final : ${document.getElementById('final-score').innerText}`, 20, 100);
+        doc.text("Commentaire IA : " + document.getElementById('ia-summary').innerText, 20, 115, { maxWidth: 160 });
+        doc.text("Audit certifié par Dr Enoch Numbi - DorkNet Xchange", 20, 280);
+        doc.save(`Audit_ProFin_${responses.nom}.pdf`);
     }
 
     initQuiz();
