@@ -9,7 +9,7 @@ st.set_page_config(
     page_title="ProFin-AI | Expertise Financière RDC",
     page_icon="💰",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="expanded" # FORCE l'ouverture du menu au démarrage
 )
 
 # Fonction réelle d'envoi de mail via le serveur (Optionnelle)
@@ -25,14 +25,27 @@ def send_server_email(user_email, subject, body):
         return False
 
 def main():
+    # Style CSS pour cacher les menus inutiles et styliser la flèche de la barre latérale
     st.markdown("""
         <style>
             #MainMenu {visibility: hidden;}
             footer {visibility: hidden;}
             header {visibility: hidden;}
             .stApp { background-color: #001b22; }
+            
+            /* Rend la flèche du menu dorée et plus visible sur mobile */
+            .st-emotion-cache-zq5wms {
+                background-color: #b58900 !important;
+                color: #001b22 !important;
+                border-radius: 50%;
+                padding: 5px;
+            }
         </style>
     """, unsafe_allow_html=True)
+
+    # BOUTON D'URGENCE : Affichage direct des infos si le menu est fermé
+    if st.button("ℹ️ INFOS LÉGALES & PROPRIÉTAIRE"):
+        st.info("PROPRIÉTAIRE : Dr Enoch Numbi | PASSEPORT : OP1759812 | DorkNet Xchange")
 
     html_file_path = "index.html"
     
@@ -53,7 +66,7 @@ def main():
         
         st.markdown("---")
         
-        # Section À Propos (Justification de propriété)
+        # Section À Propos (Justification de propriété pour FlexPay)
         st.markdown("### 🏛️ À Propos de ProFin-AI")
         st.write(f"""
         **ProFin-AI** est une solution technologique développée par **DorkNet Xchange**, sous la direction du **Dr Enoch Numbi**.
