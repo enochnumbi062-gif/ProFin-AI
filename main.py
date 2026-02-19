@@ -17,7 +17,10 @@ def main():
             footer {visibility: hidden;}
             header {visibility: hidden;}
             .stApp { background-color: #001b22; }
-            .stFileUploader { max-width: 600px; margin: 0 auto; padding-top: 20px;}
+            /* Resserrement des éléments pour le look stable */
+            .stFileUploader { max-width: 600px; margin: 0 auto; padding-top: 5px; padding-bottom: 0px;}
+            .block-container { padding-top: 1rem; }
+            .stSuccess { max-width: 600px; margin: 0 auto; }
         </style>
     """, unsafe_allow_html=True)
 
@@ -27,7 +30,7 @@ def main():
     uploaded_file = st.file_uploader("Choisissez votre fichier projet (Format PDF uniquement)", type=["pdf"], help="Ce document sera scanné par ProFin-AI pour calculer votre score de bancabilité.")
     
     if uploaded_file is not None:
-        st.success(f"✅ Document '{uploaded_file.name}' reçu. Vous pouvez maintenant démarrer l'analyse ci-dessous.")
+        st.success(f"✅ Document '{uploaded_file.name}' reçu. Lancez l'audit ci-dessous.")
     st.write("---")
 
     html_file_path = "index.html"
@@ -35,7 +38,8 @@ def main():
     if os.path.exists(html_file_path):
         with open(html_file_path, 'r', encoding='utf-8') as f:
             html_content = f.read()
-        components.html(html_content, height=1000, scrolling=True)
+        # Hauteur ajustée pour un défilement minimal
+        components.html(html_content, height=850, scrolling=True)
     else:
         st.error(f"Fichier '{html_file_path}' introuvable.")
 
