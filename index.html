@@ -14,6 +14,7 @@
             --text: #fdf6e3;
             --accent: #268bd2;
             --success: #28a745;
+            --whatsapp: #25D366;
         }
 
         body {
@@ -111,6 +112,14 @@
             width: auto;
             display: inline-block;
         }
+
+        #whatsapp-btn {
+            display: none;
+            background: var(--whatsapp);
+            color: white;
+            margin-top: 10px;
+            font-size: 1rem;
+        }
     </style>
 </head>
 <body>
@@ -143,6 +152,10 @@
             Télécharger le Rapport PDF Complet (45$)
         </button>
 
+        <button id="whatsapp-btn" onclick="sendWhatsAppNotification()">
+            📱 Recevoir mon rapport sur WhatsApp
+        </button>
+
         <button id="payment-btn" onclick="triggerPayment()">
             💳 Paiement Mobile Money sécurisé
         </button>
@@ -156,7 +169,7 @@
 <script>
     // INITIALISATION EMAILJS AVEC VOS PARAMÈTRES RÉELS
     (function(){
-      emailjs.init("137jMYfvXJmUE9xbZ"); // Remplacer par votre Public Key (onglet Account)
+      emailjs.init("137jMYfvXJmUE9xbZ"); 
     })();
 
     const questions = [
@@ -223,19 +236,25 @@
             document.getElementById('final-score').innerText = score;
             document.getElementById('ia-summary').innerText = `Projet analysé pour ${responses.ville}. Potentiel de croissance élevé. Bancabilité en cours de validation.`;
             
-            // ENVOI RÉEL VIA VOTRE SERVICE service_wie7dfb
             sendEmailReceipt("Analyse Gratuite Terminée", "Félicitations ! Votre diagnostic IA pour " + responses.nom + " affiche un score de " + score + "%.");
         }, 3000);
     }
 
     function sendEmailReceipt(subject, message) {
-        // UTILISATION DE VOS IDS RÉELS
         emailjs.send("service_wie7dfb", "template_c9hl9ul", {
             to_email: responses.email,
             project_name: responses.nom,
             message: message,
             subject: subject
-        }).then(() => console.log("Email Pro envoyé !"), (err) => console.error("Erreur EmailJS:", err));
+        }).then(() => console.log("Email envoyé !"), (err) => console.error("Erreur EmailJS:", err));
+    }
+
+    // FONCTION WHATSAPP OPTION A - NUMÉRO MIS À JOUR
+    function sendWhatsAppNotification() {
+        const monNumero = "243859148909"; 
+        const message = `Bonjour Dr Enoch, je viens de payer 45$ pour le projet : ${responses.nom}. Mon nom est associé à l'email ${responses.email}. Merci de m'envoyer mon rapport.`;
+        const encodedMessage = encodeURIComponent(message);
+        window.open(`https://wa.me/${monNumero}?text=${encodedMessage}`, '_blank');
     }
 
     function triggerPayment() {
@@ -243,32 +262,28 @@
         btn.innerText = "Connexion FlexPay RDC...";
         btn.disabled = true;
 
-        // CONFIGURATION DE LA REDIRECTION FLEXPAY RÉELLE
-        const merchantToken = "VOTRE_MERCHANT_TOKEN_FLEXPAY"; // À récupérer sur votre dashboard FlexPay
+        const merchantToken = "VOTRE_MERCHANT_TOKEN_FLEXPAY"; 
         const amount = 45;
         const currency = "USD";
         const description = "Rapport de Bancabilité ProFin-AI - " + responses.nom;
 
-        // URL DE LA PASSERELLE FLEXPAY (Format standard pour redirection)
         const flexpayUrl = `https://gateway.flexpay.cd/payment/init?merchant_token=${merchantToken}&amount=${amount}&currency=${currency}&description=${encodeURIComponent(description)}&reference=${Date.now()}`;
 
         setTimeout(() => {
             let confirmPay = confirm("Vous allez être redirigé vers le portail sécurisé FlexPay pour valider le paiement de 45 USD via Orange Money ou M-Pesa. Continuer ?");
             if(confirmPay) {
-                // REDIRECTION RÉELLE
-                window.location.href = flexpayUrl; 
-                
-                // Note : Pour les tests, si vous n'avez pas encore le Token, 
-                // vous pouvez simuler le succès ici :
-                /*
+                // REDIRECTION RÉELLE LORSQUE VOUS AUREZ LE TOKEN
+                // window.location.href = flexpayUrl; 
+
+                // SIMULATION POUR LE TEST (Affichage des boutons de succès)
                 alert("⏳ Confirmation de la transaction...");
                 setTimeout(() => {
                     alert("✅ Paiement de 45$ confirmé !");
                     document.getElementById('download-btn').style.display = "block";
+                    document.getElementById('whatsapp-btn').style.display = "block"; 
                     btn.innerText = "✅ Transaction Terminée";
                     sendEmailReceipt("Confirmation de Paiement", "Votre paiement de 45$ a été reçu. Votre rapport PDF est débloqué.");
-                }, 3000);
-                */
+                }, 2000);
             } else {
                 btn.innerText = "💳 Paiement Mobile Money sécurisé";
                 btn.disabled = false;
