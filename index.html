@@ -9,7 +9,7 @@
     <style>
         :root {
             --primary: #b58900;
-            --bg: #001b22; /* Fond original de la capture 1 */
+            --bg: #001b22; 
             --card: #002b36;
             --text: #fdf6e3;
             --accent: #268bd2;
@@ -42,6 +42,25 @@
         header h1 { color: var(--primary); margin: 0; font-size: 2.2rem; }
         .badge { background: var(--primary); color: var(--bg); padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 0.8rem; display: inline-block; margin-bottom: 20px; }
 
+        /* Style spécifique pour le dépôt de fichier (Capture 1) */
+        .upload-area {
+            border: 2px dashed rgba(181, 137, 0, 0.5);
+            padding: 20px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+        .file-info {
+            background: rgba(40, 167, 69, 0.2);
+            color: #85ffad;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 0.8rem;
+            display: none;
+        }
+
         label { display: block; margin-bottom: 15px; font-size: 1.1rem; text-align: left; }
         
         input, select {
@@ -68,7 +87,6 @@
             transition: 0.2s;
         }
 
-        /* Scan Animation */
         .scan-container {
             position: relative;
             width: 100%;
@@ -101,8 +119,7 @@
             font-weight: bold;
         }
 
-        .result-ui { display: none; }
-        .loading-ui { display: none; }
+        .result-ui, .loading-ui { display: none; }
 
         .footer-note { font-size: 0.7rem; color: #586e75; margin-top: 25px; line-height: 1.4; }
     </style>
@@ -115,12 +132,23 @@
         <div class="badge">Diagnostic Bancaire RDC</div>
     </header>
 
+    <div id="upload-section">
+        <h3 style="color: var(--primary); font-size: 1rem;">📁 Dépôt de Business Plan pour Audit IA</h3>
+        <div class="upload-area" onclick="document.getElementById('file-input').click()">
+            <p style="font-size: 0.9rem; margin: 0;">Drag and drop file here<br><small>Limit 200MB per file • PDF</small></p>
+            <input type="file" id="file-input" style="display:none" onchange="handleFile(this)">
+        </div>
+        <div id="file-ready" class="file-info">
+            ✅ Document reçu. Lancez l'audit ci-dessous.
+        </div>
+    </div>
+
     <div id="quiz">
         <div id="step-content">
             <label id="question-label">Chargement...</label>
             <div id="input-container"></div>
         </div>
-        <button onclick="nextStep()">Continuer</button>
+        <button onclick="nextStep()">Continuer l'analyse</button>
     </div>
 
     <div id="loading" class="loading-ui">
@@ -161,7 +189,6 @@
         { id: 'ville', label: "Ville d'implantation (RDC) ?", type: 'text' },
         { id: 'secteur', label: "Secteur d'activité ?", type: 'select', options: ['Agriculture', 'Mines', 'Commerce', 'Technologie', 'Services'] },
         { id: 'montant', label: "Besoin de financement (USD) ?", type: 'number' },
-        { id: 'doc', label: "Dépôt Business Plan ?", type: 'select', options: ['Oui, dossier déposé', 'Non, diagnostic simple'] },
         { id: 'email', label: "Votre Email :", type: 'text' }
     ];
 
@@ -173,7 +200,15 @@
         'Services': ["Structuration charges fixes", "Marge nette"]
     };
 
-    let currentStep = 0; let responses = {};
+    let currentStep = 0; let responses = {}; let fileUploaded = false;
+
+    function handleFile(input) {
+        if(input.files && input.files[0]) {
+            fileUploaded = true;
+            document.getElementById('file-ready').style.display = 'block';
+            responses['doc'] = "Oui, dossier déposé";
+        }
+    }
 
     function initQuiz() {
         const step = questions[currentStep];
@@ -193,14 +228,21 @@
         const input = document.getElementById('current-input');
         if(!input.value) return alert("Veuillez remplir ce champ");
         responses[questions[currentStep].id] = input.value;
-        if (currentStep < questions.length - 1) { currentStep++; initQuiz(); } else { processAnalysis(); }
+        if (currentStep < questions.length - 1) { 
+            currentStep++; 
+            initQuiz(); 
+        } else { 
+            processAnalysis(); 
+        }
     }
 
     function processAnalysis() {
         document.getElementById('quiz').style.display = 'none';
+        document.getElementById('upload-section').style.display = 'none';
         document.getElementById('loading').style.display = 'block';
         setTimeout(() => {
-            const score = responses.doc.includes('Oui') ? Math.floor(Math.random() * (95 - 78) + 78) : 55;
+            // Score élevé si un fichier a été mis (comme sur votre capture à 93%)
+            const score = fileUploaded ? 93 : 55;
             document.getElementById('loading').style.display = 'none';
             document.getElementById('result').style.display = 'block';
             document.getElementById('final-score').innerText = score + "%";
