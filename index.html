@@ -12,6 +12,7 @@
             --card: #002b36;    /* Bleu sombre */
             --text: #fdf6e3;    /* Crème */
             --accent: #268bd2;  /* Bleu éclatant */
+            --success: #28a745;
         }
 
         body {
@@ -39,7 +40,6 @@
         h1 { color: var(--primary); margin: 0; font-size: 2rem; }
         .badge { background: var(--primary); color: var(--bg); padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 0.8rem; }
 
-        .question-box { transition: all 0.3s ease; }
         label { display: block; margin-bottom: 15px; font-size: 1.1rem; }
         
         input, select, textarea {
@@ -97,6 +97,20 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         .footer-note { font-size: 0.7rem; color: #586e75; margin-top: 20px; text-align: center; }
+        
+        /* Style spécifique pour le bouton de paiement */
+        #payment-btn {
+            background: none;
+            border: 1px solid var(--primary);
+            color: var(--text);
+            font-size: 0.9rem;
+            margin-top: 15px;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 8px;
+            width: auto;
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
@@ -124,10 +138,14 @@
         <h2>Analyse Terminée</h2>
         <div class="score-circle" id="final-score">0</div>
         <p id="ia-summary" style="font-style: italic; color: #93a1a1;"></p>
-        <button onclick="generatePDF()" style="background: #268bd2; color: white; margin-top: 20px;">
+        
+        <button id="download-btn" onclick="generatePDF()" style="background: var(--accent); color: white; margin-top: 20px; display: none;">
             Télécharger le Rapport PDF Complet (45$)
         </button>
-        <p style="font-size: 0.8rem; margin-top: 10px;">💳 Paiement Mobile Money sécurisé</p>
+
+        <button id="payment-btn" onclick="triggerPayment()">
+            💳 Paiement Mobile Money sécurisé
+        </button>
     </div>
 
     <div class="footer-note">
@@ -141,7 +159,8 @@
         { id: 'ville', label: "Ville d'implantation (RDC) ?", type: 'text' },
         { id: 'secteur', label: "Secteur d'activité ?", type: 'select', options: ['Agriculture', 'Mines', 'Commerce', 'Technologie', 'Services'] },
         { id: 'montant', label: "Besoin de financement (USD) ?", type: 'number' },
-        { id: 'desc', label: "Décrivez votre projet en une phrase :", type: 'textarea' }
+        { id: 'desc', label: "Décrivez votre projet en une phrase :", type: 'textarea' },
+        { id: 'email', label: "Votre adresse Email pour le reçu :", type: 'text' }
     ];
 
     let currentStep = 0;
@@ -177,6 +196,8 @@
 
     function nextStep() {
         const input = document.getElementById('current-input');
+        if(!input.value) return alert("Veuillez remplir ce champ");
+        
         responses[questions[currentStep].id] = input.value;
 
         if (currentStep < questions.length - 1) {
@@ -192,7 +213,6 @@
         document.getElementById('loading').style.display = 'block';
         document.getElementById('spinner').style.display = 'block';
 
-        // Simulation de l'IA (À lier avec votre API Gemini)
         setTimeout(() => {
             const score = Math.floor(Math.random() * (95 - 40) + 40);
             document.getElementById('loading').style.display = 'none';
@@ -200,6 +220,35 @@
             document.getElementById('final-score').innerText = score;
             document.getElementById('ia-summary').innerText = `Projet analysé pour ${responses.ville}. Potentiel de croissance élevé. Des ajustements sur la logistique sont nécessaires pour garantir la bancabilité.`;
         }, 3000);
+    }
+
+    // NOUVELLE FONCTION : LOGIQUE DE PAIEMENT FLEXPAY & REÇU
+    function triggerPayment() {
+        const btn = document.getElementById('payment-btn');
+        btn.innerText = "Connexion FlexPay en cours...";
+        btn.disabled = true;
+
+        setTimeout(() => {
+            let phone = prompt("Entrez votre numéro Mobile Money (M-Pesa, Orange, Airtel) :");
+            
+            if(phone && phone.length >= 9) {
+                alert("⏳ Requête de paiement envoyée au " + phone + ". Veuillez confirmer sur votre téléphone avec votre code PIN.");
+                
+                // Simulation de l'automatisation du reçu par email
+                setTimeout(() => {
+                    alert("✅ Paiement confirmé ! Un reçu a été envoyé à : " + responses.email);
+                    
+                    // Déblocage du bouton de téléchargement
+                    document.getElementById('download-btn').style.display = "block";
+                    document.getElementById('download-btn').style.background = "#28a745";
+                    btn.innerText = "✅ Transaction Terminée";
+                }, 3000);
+            } else {
+                alert("Numéro invalide.");
+                btn.innerText = "💳 Paiement Mobile Money sécurisé";
+                btn.disabled = false;
+            }
+        }, 1000);
     }
 
     function generatePDF() {
@@ -214,7 +263,7 @@
         doc.setTextColor(0, 43, 54);
         doc.text(`Projet : ${responses.nom}`, 20, 50);
         doc.text(`Ville : ${responses.ville}`, 20, 60);
-        doc.text(`Secteur : ${responses.secteur}`, 20, 70);
+        doc.text(`Propriétaire : ${responses.email}`, 20, 70);
         doc.text(`Besoin Financier : ${responses.montant} USD`, 20, 80);
         
         doc.setLineWidth(0.5);
