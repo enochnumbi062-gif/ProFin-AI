@@ -17,8 +17,8 @@ def main():
             footer {visibility: hidden;}
             header {visibility: hidden;}
             .stApp { background-color: #001b22; }
-            /* Resserrement des éléments pour le look stable */
-            .stFileUploader { max-width: 600px; margin: 0 auto; padding-top: 5px; padding-bottom: 0px;}
+            /* Distance de 2cm environ entre le dépôt et le terminal */
+            .stFileUploader { max-width: 600px; margin: 0 auto; padding-top: 5px; padding-bottom: 20px;}
             .block-container { padding-top: 1rem; }
             .stSuccess { max-width: 600px; margin: 0 auto; }
         </style>
@@ -39,7 +39,7 @@ def main():
         with open(html_file_path, 'r', encoding='utf-8') as f:
             html_content = f.read()
         # Hauteur ajustée pour un défilement minimal
-        components.html(html_content, height=850, scrolling=True)
+        components.html(html_content, height=1000, scrolling=True)
     else:
         st.error(f"Fichier '{html_file_path}' introuvable.")
 
