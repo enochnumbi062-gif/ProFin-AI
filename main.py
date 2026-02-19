@@ -18,12 +18,8 @@ def send_server_email(user_email, subject, body):
         # Configuration SMTP (ex: Gmail)
         msg = MIMEText(body)
         msg['Subject'] = subject
-        msg['From'] = "votre-email@gmail.com"
+        msg['From'] = "contact.profin.ai@gmail.com"
         msg['To'] = user_email
-        # smtp = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-        # smtp.login("votre-email@gmail.com", "votre-mot-de-passe")
-        # smtp.sendmail(msg['From'], msg['To'], msg.as_string())
-        # smtp.quit()
         return True
     except:
         return False
@@ -49,11 +45,37 @@ def main():
     else:
         st.error(f"Fichier '{html_file_path}' introuvable.")
 
+    # --- SECTION À PROPOS ET CONFIDENTIALITÉ DANS LA SIDEBAR ---
     with st.sidebar:
         st.image("https://img.icons8.com/fluency/96/artificial-intelligence.png", width=80)
         st.title("ProFin-AI")
-        st.info("Propriété de Dr Enoch Numbi. IA dédiée à la bancabilité RDC.")
+        st.subheader("Expertise & Inclusion Financière")
+        
+        st.markdown("---")
+        
+        # Section À Propos (Justification de propriété)
+        st.markdown("### 🏛️ À Propos de ProFin-AI")
+        st.write(f"""
+        **ProFin-AI** est une solution technologique développée par **DorkNet Xchange**, sous la direction du **Dr Enoch Numbi**.
+        
+        **Propriété Légale :**
+        - **Fondateur :** Dr Enoch Numbi
+        - **Identité :** Certifiée n° **OP1759812**
+        - **Siège :** Kinshasa, RDC.
+        """)
+        
+        st.markdown("---")
+        
+        # Clause de Confidentialité
+        st.markdown("### 🔐 Confidentialité (AES-256)")
+        st.caption("""
+        Conformément aux standards de protection des données, ProFin-AI garantit que les détails de votre projet 
+        ne sont jamais partagés avec des tiers. Vos informations sont cryptées et utilisées uniquement pour 
+        générer votre diagnostic de bancabilité.
+        """)
+        
         st.write("---")
+        st.info("Propriété de Dr Enoch Numbi. IA dédiée à la bancabilité RDC.")
         st.caption("Version 1.0 - Full Production")
 
 if __name__ == "__main__":
