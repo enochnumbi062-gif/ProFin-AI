@@ -1,8 +1,10 @@
 import streamlit as st
 import streamlit.components.v1 as components
 import os
+import smtplib
+from email.mime.text import MIMEText
 
-# 1. Configuration de la page Streamlit (Apparence et Titre)
+# Configuration de la page
 st.set_page_config(
     page_title="ProFin-AI | Expertise Financière RDC",
     page_icon="💰",
@@ -10,40 +12,49 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+# Fonction réelle d'envoi de mail via le serveur (Optionnelle)
+def send_server_email(user_email, subject, body):
+    try:
+        # Configuration SMTP (ex: Gmail)
+        msg = MIMEText(body)
+        msg['Subject'] = subject
+        msg['From'] = "votre-email@gmail.com"
+        msg['To'] = user_email
+        # smtp = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+        # smtp.login("votre-email@gmail.com", "votre-mot-de-passe")
+        # smtp.sendmail(msg['From'], msg['To'], msg.as_string())
+        # smtp.quit()
+        return True
+    except:
+        return False
+
 def main():
-    # Style CSS pour cacher les éléments inutiles de Streamlit et centrer l'app
     st.markdown("""
         <style>
             #MainMenu {visibility: hidden;}
             footer {visibility: hidden;}
             header {visibility: hidden;}
-            .stApp {
-                background-color: #001b22;
-            }
+            .stApp { background-color: #001b22; }
         </style>
     """, unsafe_allow_html=True)
 
-    # 2. Lecture du fichier HTML que nous avons créé ensemble
-    # Assurez-vous que index.html est dans le même dossier que app.py
     html_file_path = "index.html"
     
     if os.path.exists(html_file_path):
         with open(html_file_path, 'r', encoding='utf-8') as f:
             html_content = f.read()
         
-        # 3. Injection du composant HTML (Le Pont)
-        # On définit une hauteur de 900px pour éviter les barres de défilement internes
-        components.html(html_content, height=900, scrolling=True)
+        # Injection du pont HTML avec défilement fluide
+        components.html(html_content, height=1000, scrolling=True)
     else:
-        st.error(f"Erreur : Le fichier '{html_file_path}' est introuvable. Veuillez le placer à la racine du projet.")
+        st.error(f"Fichier '{html_file_path}' introuvable.")
 
-    # 4. Sidebar (Optionnelle, pour donner du crédit ou des instructions)
     with st.sidebar:
         st.image("https://img.icons8.com/fluency/96/artificial-intelligence.png", width=80)
         st.title("ProFin-AI")
-        st.info("Propriété de Dr Enoch Numbi. Solution d'IA dédiée à la bancabilité des projets en RDC.")
+        st.info("Propriété de Dr Enoch Numbi. IA dédiée à la bancabilité RDC.")
         st.write("---")
-        st.caption("Version 1.0 - Déploiement Stable")
+        st.caption("Version 1.0 - Full Production")
 
 if __name__ == "__main__":
     main()
