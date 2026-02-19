@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProFin-AI | Structuration de Projets RDC</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        :root {
+            --primary: #b58900; /* Or */
+            --bg: #001b22;      /* Bleu nuit profond */
+            --card: #002b36;    /* Bleu sombre */
+            --text: #fdf6e3;    /* Crème */
+            --accent: #268bd2;  /* Bleu éclatant */
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 600px;
+            background: var(--card);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            border: 1px solid rgba(181, 137, 0, 0.2);
+        }
+
+        header { text-align: center; margin-bottom: 30px; }
+        h1 { color: var(--primary); margin: 0; font-size: 2rem; }
+        .badge { background: var(--primary); color: var(--bg); padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 0.8rem; }
+
+        .question-box { transition: all 0.3s ease; }
+        label { display: block; margin-bottom: 15px; font-size: 1.1rem; }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            background: #073642;
+            border: 1px solid var(--primary);
+            color: white;
+            border-radius: 10px;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+            font-size: 1rem;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: var(--primary);
+            border: none;
+            color: var(--bg);
+            font-weight: bold;
+            font-size: 1.1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button:hover { transform: scale(1.02); background: #d4a017; }
+
+        .result-card { display: none; text-align: center; }
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border: 5px solid var(--primary);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px auto;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .loader {
+            display: none;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .footer-note { font-size: 0.7rem; color: #586e75; margin-top: 20px; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>ProFin-AI</h1>
+        <span class="badge">Diagnostic Bancaire RDC</span>
+    </header>
+
+    <div id="quiz">
+        <div id="step-content">
+            <label id="question-label">Chargement...</label>
+            <div id="input-container"></div>
+        </div>
+        <button onclick="nextStep()">Continuer</button>
+    </div>
+
+    <div id="loading" class="result-card">
+        <p>Analyse par l'IA ProFin en cours...</p>
+        <div class="loader" id="spinner"></div>
+    </div>
+
+    <div id="result" class="result-card">
+        <h2>Analyse Terminée</h2>
+        <div class="score-circle" id="final-score">0</div>
+        <p id="ia-summary" style="font-style: italic; color: #93a1a1;"></p>
+        <button onclick="generatePDF()" style="background: #268bd2; color: white; margin-top: 20px;">
+            Télécharger le Rapport PDF Complet (45$)
+        </button>
+        <p style="font-size: 0.8rem; margin-top: 10px;">💳 Paiement Mobile Money sécurisé</p>
+    </div>
+
+    <div class="footer-note">
+        Propriété de Dr Enoch Numbi | Sécurisé par ProFin-Protocol AES-256
+    </div>
+</div>
+
+<script>
+    const questions = [
+        { id: 'nom', label: "Nom de votre projet ?", type: 'text' },
+        { id: 'ville', label: "Ville d'implantation (RDC) ?", type: 'text' },
+        { id: 'secteur', label: "Secteur d'activité ?", type: 'select', options: ['Agriculture', 'Mines', 'Commerce', 'Technologie', 'Services'] },
+        { id: 'montant', label: "Besoin de financement (USD) ?", type: 'number' },
+        { id: 'desc', label: "Décrivez votre projet en une phrase :", type: 'textarea' }
+    ];
+
+    let currentStep = 0;
+    let responses = {};
+
+    function initQuiz() {
+        const step = questions[currentStep];
+        document.getElementById('question-label').innerText = step.label;
+        const container = document.getElementById('input-container');
+        container.innerHTML = '';
+
+        if (step.type === 'select') {
+            const select = document.createElement('select');
+            select.id = 'current-input';
+            step.options.forEach(opt => {
+                const o = document.createElement('option');
+                o.value = opt; o.text = opt;
+                select.appendChild(o);
+            });
+            container.appendChild(select);
+        } else if (step.type === 'textarea') {
+            const txt = document.createElement('textarea');
+            txt.id = 'current-input';
+            txt.rows = 4;
+            container.appendChild(txt);
+        } else {
+            const inp = document.createElement('input');
+            inp.type = step.type;
+            inp.id = 'current-input';
+            container.appendChild(inp);
+        }
+    }
+
+    function nextStep() {
+        const input = document.getElementById('current-input');
+        responses[questions[currentStep].id] = input.value;
+
+        if (currentStep < questions.length - 1) {
+            currentStep++;
+            initQuiz();
+        } else {
+            processAnalysis();
+        }
+    }
+
+    function processAnalysis() {
+        document.getElementById('quiz').style.display = 'none';
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('spinner').style.display = 'block';
+
+        // Simulation de l'IA (À lier avec votre API Gemini)
+        setTimeout(() => {
+            const score = Math.floor(Math.random() * (95 - 40) + 40);
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('result').style.display = 'block';
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('ia-summary').innerText = `Projet analysé pour ${responses.ville}. Potentiel de croissance élevé. Des ajustements sur la logistique sont nécessaires pour garantir la bancabilité.`;
+        }, 3000);
+    }
+
+    function generatePDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        doc.setFontSize(22);
+        doc.setTextColor(181, 137, 0);
+        doc.text("RAPPORT PROFIN-AI", 20, 30);
+        
+        doc.setFontSize(12);
+        doc.setTextColor(0, 43, 54);
+        doc.text(`Projet : ${responses.nom}`, 20, 50);
+        doc.text(`Ville : ${responses.ville}`, 20, 60);
+        doc.text(`Secteur : ${responses.secteur}`, 20, 70);
+        doc.text(`Besoin Financier : ${responses.montant} USD`, 20, 80);
+        
+        doc.setLineWidth(0.5);
+        doc.line(20, 90, 190, 90);
+        
+        doc.text("DIAGNOSTIC DE L'IA :", 20, 105);
+        doc.text(`Score de Bancabilité : ${document.getElementById('final-score').innerText}/100`, 20, 115);
+        doc.text("Avis : " + document.getElementById('ia-summary').innerText, 20, 125, { maxWidth: 160 });
+
+        doc.setFontSize(10);
+        doc.text("Certifié par ProFin-AI - Propriété de Dr Enoch Numbi", 20, 280);
+        
+        doc.save(`Rapport_ProFin_${responses.nom}.pdf`);
+    }
+
+    initQuiz();
+</script>
+</body>
+</html>
