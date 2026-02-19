@@ -5,13 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ProFin-AI | Structuration de Projets RDC</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <style>
         :root {
-            --primary: #b58900; /* Or */
-            --bg: #001b22;      /* Bleu nuit profond */
-            --card: #002b36;    /* Bleu sombre */
-            --text: #fdf6e3;    /* Crème */
-            --accent: #268bd2;  /* Bleu éclatant */
+            --primary: #b58900;
+            --bg: #001b22;
+            --card: #002b36;
+            --text: #fdf6e3;
+            --accent: #268bd2;
             --success: #28a745;
         }
 
@@ -98,7 +99,6 @@
 
         .footer-note { font-size: 0.7rem; color: #586e75; margin-top: 20px; text-align: center; }
         
-        /* Style spécifique pour le bouton de paiement */
         #payment-btn {
             background: none;
             border: 1px solid var(--primary);
@@ -154,6 +154,11 @@
 </div>
 
 <script>
+    // INITIALISATION EMAILJS AVEC VOS PARAMÈTRES RÉELS
+    (function(){
+      emailjs.init("VOTRE_PUBLIC_KEY_ICI"); // Remplacer par votre Public Key (onglet Account)
+    })();
+
     const questions = [
         { id: 'nom', label: "Nom de votre projet ?", type: 'text' },
         { id: 'ville', label: "Ville d'implantation (RDC) ?", type: 'text' },
@@ -197,9 +202,7 @@
     function nextStep() {
         const input = document.getElementById('current-input');
         if(!input.value) return alert("Veuillez remplir ce champ");
-        
         responses[questions[currentStep].id] = input.value;
-
         if (currentStep < questions.length - 1) {
             currentStep++;
             initQuiz();
@@ -218,33 +221,55 @@
             document.getElementById('loading').style.display = 'none';
             document.getElementById('result').style.display = 'block';
             document.getElementById('final-score').innerText = score;
-            document.getElementById('ia-summary').innerText = `Projet analysé pour ${responses.ville}. Potentiel de croissance élevé. Des ajustements sur la logistique sont nécessaires pour garantir la bancabilité.`;
+            document.getElementById('ia-summary').innerText = `Projet analysé pour ${responses.ville}. Potentiel de croissance élevé. Bancabilité en cours de validation.`;
+            
+            // ENVOI RÉEL VIA VOTRE SERVICE service_wie7dfb
+            sendEmailReceipt("Analyse Gratuite Terminée", "Félicitations ! Votre diagnostic IA pour " + responses.nom + " affiche un score de " + score + "%.");
         }, 3000);
     }
 
-    // NOUVELLE FONCTION : LOGIQUE DE PAIEMENT FLEXPAY & REÇU
+    function sendEmailReceipt(subject, message) {
+        // UTILISATION DE VOS IDS RÉELS
+        emailjs.send("service_wie7dfb", "template_c9hl9ul", {
+            to_email: responses.email,
+            project_name: responses.nom,
+            message: message,
+            subject: subject
+        }).then(() => console.log("Email Pro envoyé !"), (err) => console.error("Erreur EmailJS:", err));
+    }
+
     function triggerPayment() {
         const btn = document.getElementById('payment-btn');
-        btn.innerText = "Connexion FlexPay en cours...";
+        btn.innerText = "Connexion FlexPay RDC...";
         btn.disabled = true;
 
+        // CONFIGURATION DE LA REDIRECTION FLEXPAY RÉELLE
+        const merchantToken = "VOTRE_MERCHANT_TOKEN_FLEXPAY"; // À récupérer sur votre dashboard FlexPay
+        const amount = 45;
+        const currency = "USD";
+        const description = "Rapport de Bancabilité ProFin-AI - " + responses.nom;
+
+        // URL DE LA PASSERELLE FLEXPAY (Format standard pour redirection)
+        const flexpayUrl = `https://gateway.flexpay.cd/payment/init?merchant_token=${merchantToken}&amount=${amount}&currency=${currency}&description=${encodeURIComponent(description)}&reference=${Date.now()}`;
+
         setTimeout(() => {
-            let phone = prompt("Entrez votre numéro Mobile Money (M-Pesa, Orange, Airtel) :");
-            
-            if(phone && phone.length >= 9) {
-                alert("⏳ Requête de paiement envoyée au " + phone + ". Veuillez confirmer sur votre téléphone avec votre code PIN.");
+            let confirmPay = confirm("Vous allez être redirigé vers le portail sécurisé FlexPay pour valider le paiement de 45 USD via Orange Money ou M-Pesa. Continuer ?");
+            if(confirmPay) {
+                // REDIRECTION RÉELLE
+                window.location.href = flexpayUrl; 
                 
-                // Simulation de l'automatisation du reçu par email
+                // Note : Pour les tests, si vous n'avez pas encore le Token, 
+                // vous pouvez simuler le succès ici :
+                /*
+                alert("⏳ Confirmation de la transaction...");
                 setTimeout(() => {
-                    alert("✅ Paiement confirmé ! Un reçu a été envoyé à : " + responses.email);
-                    
-                    // Déblocage du bouton de téléchargement
+                    alert("✅ Paiement de 45$ confirmé !");
                     document.getElementById('download-btn').style.display = "block";
-                    document.getElementById('download-btn').style.background = "#28a745";
                     btn.innerText = "✅ Transaction Terminée";
+                    sendEmailReceipt("Confirmation de Paiement", "Votre paiement de 45$ a été reçu. Votre rapport PDF est débloqué.");
                 }, 3000);
+                */
             } else {
-                alert("Numéro invalide.");
                 btn.innerText = "💳 Paiement Mobile Money sécurisé";
                 btn.disabled = false;
             }
@@ -254,28 +279,18 @@
     function generatePDF() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
-        
         doc.setFontSize(22);
         doc.setTextColor(181, 137, 0);
         doc.text("RAPPORT PROFIN-AI", 20, 30);
-        
         doc.setFontSize(12);
         doc.setTextColor(0, 43, 54);
         doc.text(`Projet : ${responses.nom}`, 20, 50);
-        doc.text(`Ville : ${responses.ville}`, 20, 60);
         doc.text(`Propriétaire : ${responses.email}`, 20, 70);
-        doc.text(`Besoin Financier : ${responses.montant} USD`, 20, 80);
-        
-        doc.setLineWidth(0.5);
         doc.line(20, 90, 190, 90);
-        
         doc.text("DIAGNOSTIC DE L'IA :", 20, 105);
-        doc.text(`Score de Bancabilité : ${document.getElementById('final-score').innerText}/100`, 20, 115);
+        doc.text(`Score : ${document.getElementById('final-score').innerText}/100`, 20, 115);
         doc.text("Avis : " + document.getElementById('ia-summary').innerText, 20, 125, { maxWidth: 160 });
-
-        doc.setFontSize(10);
         doc.text("Certifié par ProFin-AI - Propriété de Dr Enoch Numbi", 20, 280);
-        
         doc.save(`Rapport_ProFin_${responses.nom}.pdf`);
     }
 
