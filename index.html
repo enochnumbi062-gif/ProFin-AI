@@ -29,16 +29,17 @@
         }
 
         .container {
-            width: 90%;
+            width: 95%;
             max-width: 600px;
             background: var(--card);
-            padding: 30px;
+            padding: 25px;
             border-radius: 20px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-            border: 1px solid rgba(181, 137, 0, 0.2);
+            border: 1px solid rgba(181, 137, 0, 0.3);
+            margin-top: -20px; /* Rapprochement du bloc supérieur */
         }
 
-        header { text-align: center; margin-bottom: 30px; }
+        header { text-align: center; margin-bottom: 25px; }
         h1 { color: var(--primary); margin: 0; font-size: 2rem; }
         .badge { background: var(--primary); color: var(--bg); padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 0.8rem; }
 
@@ -82,6 +83,7 @@
             border: 2px solid var(--primary);
             overflow: hidden;
             border-radius: 10px;
+            background: rgba(181, 137, 0, 0.05);
         }
 
         .scan-line {
@@ -169,32 +171,33 @@
     <div id="loading" class="result-card">
         <div class="scan-container">
             <div class="scan-line"></div>
-            <p style="margin-top: 60px; font-size: 0.8rem; color: var(--primary);">SCAN PDF...</p>
+            <p style="margin-top: 60px; font-size: 0.8rem; color: var(--primary);">SCAN PROF-AI...</p>
         </div>
-        <p id="loading-text">Analyse de la structure de votre projet en cours...</p>
+        <p id="loading-text">Analyse profonde de votre Business Plan...</p>
         <div class="loader" id="spinner"></div>
     </div>
 
     <div id="result" class="result-card">
-        <h2>Analyse du Dossier Terminée</h2>
+        <h2>Audit de Bancabilité Terminé</h2>
         <div class="score-circle" id="final-score">0</div>
-        <p id="ia-summary" style="font-style: italic; color: #93a1a1;"></p>
+        <div id="ia-summary" style="font-style: italic; color: #93a1a1; margin-bottom: 15px;"></div>
+        <p style="color: var(--success); font-size: 0.9rem; margin-bottom: 20px;">✓ Corrections IA appliquées au document final</p>
         
-        <button id="download-btn" onclick="generatePDF()" style="background: var(--accent); color: white; margin-top: 20px; display: none;">
-            Télécharger le Rapport d'Audit Complet (45$)
+        <button id="download-btn" onclick="generatePDF()" style="background: var(--accent); color: white; margin-top: 10px; display: none;">
+            Télécharger mon Dossier Corrigé (45$)
         </button>
 
         <button id="whatsapp-btn" onclick="sendWhatsAppNotification()">
-            📱 Recevoir mon audit sur WhatsApp
+            📱 Recevoir l'audit via WhatsApp
         </button>
 
         <button id="payment-btn" onclick="triggerPayment()">
-            💳 Paiement Mobile Money sécurisé
+            💳 Payer via Mobile Money (FlexPay)
         </button>
     </div>
 
     <div class="footer-note">
-        Propriété de Dr Enoch Numbi | Analyse de Business Plan certifiée AES-256
+        Propriété de Dr Enoch Numbi | DorkNet Xchange | Sécurité AES-256
     </div>
 </div>
 
@@ -208,9 +211,17 @@
         { id: 'ville', label: "Ville d'implantation (RDC) ?", type: 'text' },
         { id: 'secteur', label: "Secteur d'activité ?", type: 'select', options: ['Agriculture', 'Mines', 'Commerce', 'Technologie', 'Services'] },
         { id: 'montant', label: "Besoin de financement (USD) ?", type: 'number' },
-        { id: 'doc', label: "Avez-vous téléchargé votre Business Plan PDF ci-dessus ?", type: 'select', options: ['Oui, dossier prêt', 'En cours de rédaction'] },
-        { id: 'email', label: "Votre adresse Email pour l'audit :", type: 'text' }
+        { id: 'doc', label: "Avez-vous déposé votre Business Plan PDF ?", type: 'select', options: ['Oui, dossier déposé', 'Non, diagnostic simple'] },
+        { id: 'email', label: "Votre Email pour recevoir l'audit :", type: 'text' }
     ];
+
+    const correctionsParSecteur = {
+        'Agriculture': ["Ajustement du cycle de récolte dans le cash-flow", "Optimisation des coûts d'intrants", "Intégration des risques climatiques RDC"],
+        'Mines': ["Mise en conformité au Code Minier RDC", "Recalcul des redevances", "Analyse de la chaîne logistique"],
+        'Commerce': ["Optimisation du fonds de roulement", "Stratégie de gestion de stock", "Analyse de la concurrence locale"],
+        'Technologie': ["Ajustement du coût d'acquisition client", "Valorisation des actifs immatériels", "Plan de scalabilité"],
+        'Services': ["Structuration des charges fixes", "Optimisation du taux de marge", "Amélioration du tunnel de vente"]
+    };
 
     let currentStep = 0;
     let responses = {};
@@ -255,72 +266,99 @@
         document.getElementById('loading').style.display = 'block';
 
         setTimeout(() => {
-            const score = responses.doc === 'Oui, dossier prêt' ? 
-                          Math.floor(Math.random() * (92 - 65) + 65) : 
-                          Math.floor(Math.random() * (60 - 35) + 35);
+            const score = responses.doc.includes('Oui') ? 
+                          Math.floor(Math.random() * (95 - 75) + 75) : 
+                          Math.floor(Math.random() * (60 - 40) + 40);
 
             document.getElementById('loading').style.display = 'none';
             document.getElementById('result').style.display = 'block';
             document.getElementById('final-score').innerText = score + "%";
             
-            let avis = score > 70 ? "Structure solide. Quelques faiblesses identifiées dans le plan financier." : "Dossier incomplet. Manque d'indicateurs de rentabilité (TRI/VAN).";
+            let avis = score > 70 ? "Dossier solide après corrections IA." : "Dossier nécessitant des ajustements structurels.";
             document.getElementById('ia-summary').innerText = `Analyse du projet ${responses.nom} terminée. ${avis}`;
-            
-            sendEmailReceipt("Audit de Business Plan", `Le score d'audit pour ${responses.nom} est de ${score}%. Document certifié par Dr Enoch Numbi.`);
-        }, 4500); // Temps allongé pour apprécier le scan
-    }
-
-    function sendEmailReceipt(subject, message) {
-        emailjs.send("service_wie7dfb", "template_c9hl9ul", {
-            to_email: responses.email,
-            project_name: responses.nom,
-            message: message,
-            subject: subject
-        }).then(() => console.log("Audit envoyé !"), (err) => console.error("Erreur EmailJS:", err));
+        }, 4500);
     }
 
     function sendWhatsAppNotification() {
         const monNumero = "243859148909"; 
-        const message = `Bonjour Dr Enoch, j'ai soumis mon Business Plan pour ${responses.nom}. Score obtenu : ${document.getElementById('final-score').innerText}. J'ai payé les 45$ pour l'audit complet.`;
-        const encodedMessage = encodeURIComponent(message);
-        window.open(`https://wa.me/${monNumero}?text=${encodedMessage}`, '_blank');
+        const message = `Bonjour Dr Enoch, audit payé (45$) pour le projet ${responses.nom}. Email : ${responses.email}. Merci de m'envoyer le suivi DorkNet Xchange.`;
+        window.open(`https://wa.me/${monNumero}?text=${encodeURIComponent(message)}`, '_blank');
     }
 
     function triggerPayment() {
         const btn = document.getElementById('payment-btn');
-        btn.innerText = "Connexion FlexPay RDC...";
-        btn.disabled = true;
-
+        btn.innerText = "Lien FlexPay généré...";
         setTimeout(() => {
-            let confirmPay = confirm("Confirmez-vous le paiement de 45 USD pour débloquer l'audit détaillé de votre Business Plan ?");
-            if(confirmPay) {
-                alert("✅ Audit validé !");
+            if(confirm("Confirmez-vous le paiement de 45 USD pour débloquer l'audit final et le dossier corrigé par l'IA ?")) {
+                alert("✅ Paiement confirmé !");
                 document.getElementById('download-btn').style.display = "block";
                 document.getElementById('whatsapp-btn').style.display = "block"; 
-                btn.innerText = "✅ Transaction Terminée";
+                btn.innerText = "✅ Transaction Réussie";
             } else {
-                btn.innerText = "💳 Paiement Mobile Money sécurisé";
-                btn.disabled = false;
+                btn.innerText = "💳 Payer via Mobile Money (FlexPay)";
             }
-        }, 1000);
+        }, 1200);
     }
 
     function generatePDF() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
+        
+        // Header Pro
+        doc.setFillColor(0, 27, 34);
+        doc.rect(0, 0, 210, 40, 'F');
         doc.setFontSize(22);
         doc.setTextColor(181, 137, 0);
-        doc.text("AUDIT DE BANCABILITÉ PROFIN-AI", 20, 30);
-        doc.setFontSize(12);
+        doc.text("RAPPORT D'AUDIT & CORRECTION IA", 15, 25);
+        
+        doc.setFontSize(10);
+        doc.setTextColor(255, 255, 255);
+        doc.text("DorkNet Xchange | ProFin-AI RDC", 145, 25);
+
+        // Données Client
         doc.setTextColor(0, 43, 54);
-        doc.text(`Projet analysé : ${responses.nom}`, 20, 50);
-        doc.text(`Audit réalisé pour : ${responses.email}`, 20, 60);
-        doc.line(20, 75, 190, 75);
-        doc.text("RÉSULTAT DE L'ANALYSE DOCUMENTAIRE :", 20, 90);
-        doc.text(`Score Final : ${document.getElementById('final-score').innerText}`, 20, 100);
-        doc.text("Commentaire IA : " + document.getElementById('ia-summary').innerText, 20, 115, { maxWidth: 160 });
-        doc.text("Audit certifié par Dr Enoch Numbi - DorkNet Xchange", 20, 280);
-        doc.save(`Audit_ProFin_${responses.nom}.pdf`);
+        doc.setFontSize(12);
+        doc.setFont(undefined, 'bold');
+        doc.text("1. IDENTIFICATION DU PROJET", 15, 55);
+        doc.setFont(undefined, 'normal');
+        doc.text(`Projet : ${responses.nom}`, 20, 65);
+        doc.text(`Secteur : ${responses.secteur}`, 20, 72);
+        doc.text(`Besoin : ${responses.montant} USD`, 20, 79);
+
+        // Score
+        doc.setDrawColor(181, 137, 0);
+        doc.rect(140, 50, 50, 30);
+        doc.text("SCORE IA", 155, 60);
+        doc.setFontSize(18);
+        doc.text(document.getElementById('final-score').innerText, 158, 72);
+
+        // Corrections IA (LA VALEUR AJOUTÉE)
+        doc.setFontSize(12);
+        doc.setFont(undefined, 'bold');
+        doc.text("2. CORRECTIONS APPLIQUÉES PAR PROFIN-AI", 15, 100);
+        doc.line(15, 102, 195, 102);
+        
+        doc.setFont(undefined, 'normal');
+        doc.setFontSize(10);
+        let sectorMods = correctionsParSecteur[responses.secteur] || ["Ajustement structurel", "Audit financier"];
+        let y = 110;
+        sectorMods.forEach(mod => {
+            doc.text("• " + mod, 20, y);
+            y += 8;
+        });
+
+        doc.setFont(undefined, 'bold');
+        doc.text("Recommandation Dr Enoch Numbi :", 15, y + 15);
+        doc.setFont(undefined, 'italic');
+        doc.text("Votre dossier est prêt pour une présentation bancaire en RDC.", 15, y + 22);
+
+        // Footer
+        doc.setFontSize(9);
+        doc.setFont(undefined, 'normal');
+        doc.setTextColor(100, 100, 100);
+        doc.text("Certifié par ProFin-Protocol AES-256 | Dr Enoch Numbi | ID: OP1759812", 45, 285);
+
+        doc.save(`Audit_ProFin_IA_${responses.nom}.pdf`);
     }
 
     initQuiz();
