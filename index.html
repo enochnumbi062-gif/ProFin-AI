@@ -42,10 +42,10 @@
         header h1 { color: var(--primary); margin: 0; font-size: 2.2rem; }
         .badge { background: var(--primary); color: var(--bg); padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 0.8rem; display: inline-block; margin-bottom: 20px; }
 
-        /* Style spécifique pour le dépôt de fichier intégré */
+        /* Style Dépôt de fichier intégré dans la carte */
         .upload-area {
             border: 2px dashed rgba(181, 137, 0, 0.5);
-            padding: 15px;
+            padding: 20px;
             border-radius: 10px;
             background: rgba(0, 0, 0, 0.2);
             margin-bottom: 20px;
@@ -56,7 +56,7 @@
             color: #85ffad;
             padding: 10px;
             border-radius: 5px;
-            margin-bottom: 15px;
+            margin-top: 10px;
             font-size: 0.8rem;
             display: none;
         }
@@ -133,18 +133,22 @@
     </header>
 
     <div id="quiz">
-        <h3 style="color: var(--primary); font-size: 1rem; text-align: left;">📁 Dépôt de Business Plan pour Audit IA</h3>
-        <div class="upload-area" onclick="document.getElementById('file-input').click()">
-            <p style="font-size: 0.9rem; margin: 0;">Drag and drop file here<br><small>Limit 200MB per file • PDF</small></p>
-            <input type="file" id="file-input" style="display:none" onchange="handleFile(this)">
-        </div>
-        <div id="file-ready" class="file-info">
-            ✅ Document reçu. Continuez l'analyse.
-        </div>
-
         <div id="step-content">
-            <label id="question-label">Chargement...</label>
-            <div id="input-container"></div>
+            <div id="upload-integration">
+                <h3 style="color: var(--primary); font-size: 1rem; text-align: center;">📁 Dépôt de Business Plan pour Audit IA</h3>
+                <div class="upload-area" onclick="document.getElementById('file-input').click()">
+                    <p style="font-size: 0.9rem; margin: 0;">Drag and drop file here<br><small>Limit 200MB per file • PDF</small></p>
+                    <input type="file" id="file-input" style="display:none" onchange="handleFile(this)">
+                </div>
+                <div id="file-ready" class="file-info">
+                    ✅ Document reçu. Continuez l'analyse.
+                </div>
+            </div>
+
+            <label id="question-label">Nom de votre projet ?</label>
+            <div id="input-container">
+                <input type="text" id="current-input">
+            </div>
         </div>
         <button onclick="nextStep()">Continuer l'analyse</button>
     </div>
@@ -200,6 +204,7 @@
 
     let currentStep = 0; let responses = {}; let fileUploaded = false;
 
+    // Fonctionnalité de la section 1 maintenant active dans la section 2
     function handleFile(input) {
         if(input.files && input.files[0]) {
             fileUploaded = true;
@@ -213,6 +218,12 @@
         document.getElementById('question-label').innerText = step.label;
         const container = document.getElementById('input-container');
         container.innerHTML = '';
+        
+        // On cache le module de dépôt de fichier dès qu'on dépasse la première question
+        if (currentStep > 0) {
+            document.getElementById('upload-integration').style.display = 'none';
+        }
+
         if (step.type === 'select') {
             const select = document.createElement('select'); select.id = 'current-input';
             step.options.forEach(opt => { let o = document.createElement('option'); o.value = opt; o.text = opt; select.appendChild(o); });
@@ -269,7 +280,7 @@
         doc.save(`Audit_${responses.nom}.pdf`);
     }
 
-    initQuiz();
+    // Pas besoin d'appeler initQuiz ici au début car le HTML statique affiche déjà la 1ère question + le dépôt
 </script>
 </body>
 </html>
