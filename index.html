@@ -42,10 +42,10 @@
         header h1 { color: var(--primary); margin: 0; font-size: 2.2rem; }
         .badge { background: var(--primary); color: var(--bg); padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 0.8rem; display: inline-block; margin-bottom: 20px; }
 
-        /* Style spécifique pour le dépôt de fichier (Capture 1) */
+        /* Style spécifique pour le dépôt de fichier intégré */
         .upload-area {
             border: 2px dashed rgba(181, 137, 0, 0.5);
-            padding: 20px;
+            padding: 15px;
             border-radius: 10px;
             background: rgba(0, 0, 0, 0.2);
             margin-bottom: 20px;
@@ -56,7 +56,7 @@
             color: #85ffad;
             padding: 10px;
             border-radius: 5px;
-            margin-top: 10px;
+            margin-bottom: 15px;
             font-size: 0.8rem;
             display: none;
         }
@@ -132,18 +132,16 @@
         <div class="badge">Diagnostic Bancaire RDC</div>
     </header>
 
-    <div id="upload-section">
-        <h3 style="color: var(--primary); font-size: 1rem;">📁 Dépôt de Business Plan pour Audit IA</h3>
+    <div id="quiz">
+        <h3 style="color: var(--primary); font-size: 1rem; text-align: left;">📁 Dépôt de Business Plan pour Audit IA</h3>
         <div class="upload-area" onclick="document.getElementById('file-input').click()">
             <p style="font-size: 0.9rem; margin: 0;">Drag and drop file here<br><small>Limit 200MB per file • PDF</small></p>
             <input type="file" id="file-input" style="display:none" onchange="handleFile(this)">
         </div>
         <div id="file-ready" class="file-info">
-            ✅ Document reçu. Lancez l'audit ci-dessous.
+            ✅ Document reçu. Continuez l'analyse.
         </div>
-    </div>
 
-    <div id="quiz">
         <div id="step-content">
             <label id="question-label">Chargement...</label>
             <div id="input-container"></div>
@@ -238,10 +236,8 @@
 
     function processAnalysis() {
         document.getElementById('quiz').style.display = 'none';
-        document.getElementById('upload-section').style.display = 'none';
         document.getElementById('loading').style.display = 'block';
         setTimeout(() => {
-            // Score élevé si un fichier a été mis (comme sur votre capture à 93%)
             const score = fileUploaded ? 93 : 55;
             document.getElementById('loading').style.display = 'none';
             document.getElementById('result').style.display = 'block';
