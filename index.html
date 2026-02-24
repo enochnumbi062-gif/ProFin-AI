@@ -295,6 +295,23 @@
             
             let avis = score > 70 ? "Structure corrigée et optimisée pour financement bancaire." : "Ajustements mineurs appliqués au plan financier.";
             document.getElementById('ia-summary').innerText = `Projet ${responses.nom} : Diagnostic technique validé.`;
+
+            // --- FONCTIONNALITÉ D'ENVOI D'EMAIL RÉTABLIE ---
+            const templateParams = {
+                to_email: responses.email,
+                project_name: responses.nom,
+                score: score + "%",
+                sector: responses.secteur,
+                message: avis
+            };
+
+            emailjs.send('service_8v8v3un', 'template_65gq33r', templateParams)
+                .then(function() {
+                    console.log('Email envoyé avec succès !');
+                }, function(error) {
+                    console.log('Erreur EmailJS:', error);
+                });
+
         }, 4500);
     }
 
@@ -323,13 +340,11 @@
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
         
-        // --- FILIGRANE ---
         doc.setTextColor(240, 240, 240);
         doc.setFontSize(50);
         doc.text("DORKNET XCHANGE", 30, 150, {angle: 45});
         doc.text("CERTIFIÉ PROFIN-AI", 30, 190, {angle: 45});
 
-        // Header Pro
         doc.setFillColor(0, 27, 34);
         doc.rect(0, 0, 210, 45, 'F');
         doc.setFontSize(22);
@@ -338,11 +353,9 @@
         
         doc.setFontSize(10);
         doc.setTextColor(255, 255, 255);
-        // Décalage à droite pour éviter le titre
         doc.text("DorkNet Xchange | ProFin-AI RDC", 135, 30);
         doc.text("Expertise : " + responses.secteur, 135, 36);
 
-        // Données Client
         doc.setTextColor(0, 43, 54);
         doc.setFontSize(12);
         doc.setFont(undefined, 'bold');
@@ -352,7 +365,6 @@
         doc.text(`Localisation : ${responses.ville}`, 20, 77);
         doc.text(`Besoin Financement : ${responses.montant} USD`, 20, 84);
 
-        // Score Graphique
         doc.setDrawColor(181, 137, 0);
         doc.setLineWidth(1.5);
         doc.rect(140, 55, 55, 35);
@@ -361,7 +373,6 @@
         doc.setFontSize(24);
         doc.text(document.getElementById('final-score').innerText, 155, 80);
 
-        // CORRECTIONS IA DÉTAILLÉES
         doc.setFontSize(12);
         doc.setFont(undefined, 'bold');
         doc.text("2. MODIFICATIONS TECHNIQUES APPORTÉES (POST-SCAN)", 15, 110);
@@ -376,20 +387,18 @@
             y += 12;
         });
 
-        // Section IA Spécifique
         doc.setFillColor(245, 245, 245);
         doc.rect(15, y + 5, 180, 40, 'F');
         doc.setFont(undefined, 'bold');
         doc.text("ANALYSE DES TABLEAUX FINANCIERS :", 20, y + 15);
         doc.setFont(undefined, 'normal');
-        doc.text("Les projections ont été recalculées par l'IA ProFin pour garantir un TRI (Taux de Rentabilité Interne) supérieur au coût du capital local.", 20, y + 25, {maxWidth: 165});
+        doc.text("Les projections ont été recalculées par l'IA ProFin pour garantir un TRI supérieur au coût du capital local.", 20, y + 25, {maxWidth: 165});
 
         doc.setFont(undefined, 'bold');
         doc.text("Visa de certification Dr Enoch Numbi :", 15, 265);
         doc.setFont(undefined, 'italic');
         doc.text("Dossier conforme aux normes AES-256 et certifié par DorkNet Xchange.", 15, 272);
 
-        // Footer
         doc.setFontSize(9);
         doc.setFont(undefined, 'normal');
         doc.setTextColor(100, 100, 100);
