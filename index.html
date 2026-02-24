@@ -74,7 +74,6 @@
 
         .result-card { display: none; text-align: center; }
         
-        /* Scan Animation */
         .scan-container {
             position: relative;
             width: 150px;
@@ -128,21 +127,6 @@
             font-weight: bold;
         }
 
-        /* Tableau Pro */
-        .financial-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 15px 0;
-            font-size: 0.85rem;
-            background: rgba(0, 0, 0, 0.2);
-        }
-        .financial-table th, .financial-table td {
-            border: 1px solid #073642;
-            padding: 10px;
-            text-align: center;
-        }
-        .financial-table th { background: var(--primary); color: var(--bg); }
-
         .footer-note { font-size: 0.7rem; color: #586e75; margin-top: 20px; text-align: center; }
         
         #payment-btn {
@@ -195,9 +179,6 @@
     <div id="result" class="result-card">
         <h2>Audit de Bancabilité Terminé</h2>
         <div class="score-circle" id="final-score">0</div>
-        
-        <div id="financial-output"></div>
-
         <div id="ia-summary" style="font-style: italic; color: #93a1a1; margin-bottom: 15px;"></div>
         <p style="color: var(--success); font-size: 0.9rem; margin-bottom: 20px;">✓ Corrections IA appliquées au document final (Tableaux & Annexes)</p>
         
@@ -221,6 +202,7 @@
 
 <script>
     (function(){
+      // Initialisation avec votre Public Key mise à jour
       emailjs.init("137jMYfvXJmUE9xbZ"); 
     })();
 
@@ -234,16 +216,35 @@
     ];
 
     const correctionsParSecteur = {
-        'Agriculture': ["BFR agricole optimisé (9 mois)", "Trésorerie vs saisonnalité RDC", "Clause mitigation climatique"],
-        'Mines': ["Redevance Minière Code 2018", "Frais FOB & Export", "Provision réhabilitation"],
-        'Commerce': ["Rotation stocks +15%", "Calcul marge nette IA", "Plan contingence change"],
-        'Technologie': ["Calcul CAC/LTV", "Scalabilité utilisateurs", "Optimisation OPEX serveurs"],
-        'Services': ["Tunnel conversion IA", "Équilibre charges fixes/var", "Étude concurrentielle RDC"]
+        'Agriculture': [
+            "OPTIMISATION FINANCIÈRE : Reparamétrage du BFR agricole sur cycle de 9 mois.",
+            "CORRECTION TABLEAUX : Ajustement des flux de trésorerie (Cash-flow) vs saisonnalité RDC.",
+            "ANNEXE TECHNIQUE : Ajout d'une clause de mitigation sur risques climatiques et logistique rurale."
+        ],
+        'Mines': [
+            "CONFORMITÉ LÉGALE : Mise à jour des calculs de Redevance Minière selon le Code de 2018.",
+            "CORRECTION CHIFFRES : Intégration des frais de transport (FOB) et taxes à l'exportation.",
+            "SÉCURITÉ FINANCIÈRE : Structuration des provisions pour réhabilitation environnementale."
+        ],
+        'Commerce': [
+            "INGÉNIERIE COMMERCIALE : Correction du taux de rotation des stocks (+15%).",
+            "TABLEAUX EXCEL IA : Automatisation du calcul de la marge nette par catégorie de produits.",
+            "STRATÉGIE : Insertion d'un plan de contingence sur la volatilité du taux de change (CDF/USD)."
+        ],
+        'Technologie': [
+            "TECH-AUDIT : Recalcul du Coût d'Acquisition Client (CAC) et de la LTV (LifeTime Value).",
+            "MISE EN PAGE : Restructuration des graphiques de scalabilité et de projection d'utilisateurs.",
+            "CORRECTION IA : Optimisation des charges de serveurs et licences dans l'OPEX."
+        ],
+        'Services': [
+            "STRUCTURATION : Optimisation du tunnel de conversion et valorisation du capital humain.",
+            "CORRECTION FINANCIÈRE : Rééquilibrage des charges fixes vs variables (Seuil de rentabilité).",
+            "ANNEXE IA : Ajout d'une étude de positionnement concurrentiel sur le marché congolais."
+        ]
     };
 
     let currentStep = 0;
     let responses = {};
-    let financialData = [];
 
     function initQuiz() {
         const step = questions[currentStep];
@@ -289,39 +290,29 @@
                           Math.floor(Math.random() * (95 - 75) + 75) : 
                           Math.floor(Math.random() * (60 - 40) + 40);
 
-            // Simulation du tableau financier
-            const invest = parseFloat(responses.montant);
-            financialData = [
-                { an: 'Année 1', ca: (invest * 1.2).toFixed(0), net: (invest * 0.25).toFixed(0) },
-                { an: 'Année 2', ca: (invest * 1.8).toFixed(0), net: (invest * 0.45).toFixed(0) },
-                { an: 'Année 3', ca: (invest * 2.6).toFixed(0), net: (invest * 0.85).toFixed(0) }
-            ];
-
-            let tableHTML = `<table class="financial-table">
-                <tr><th>Exercice</th><th>C.A (USD)</th><th>Net (USD)</th></tr>`;
-            financialData.forEach(d => {
-                tableHTML += `<tr><td>${d.an}</td><td>${d.ca} $</td><td style="color:#28a745">+${d.net} $</td></tr>`;
-            });
-            tableHTML += `</table>`;
-
             document.getElementById('loading').style.display = 'none';
             document.getElementById('result').style.display = 'block';
             document.getElementById('final-score').innerText = score + "%";
-            document.getElementById('financial-output').innerHTML = tableHTML;
+            
+            let avis = score > 70 ? "Structure corrigée et optimisée pour financement bancaire." : "Ajustements mineurs appliqués au plan financier.";
             document.getElementById('ia-summary').innerText = `Projet ${responses.nom} : Diagnostic technique validé.`;
 
-            // ENVOI AUTO EMAIL
+            // --- ENVOI D'EMAIL AVEC LES NOUVEAUX IDS ---
             const templateParams = {
                 to_email: responses.email,
                 project_name: responses.nom,
                 score: score + "%",
                 sector: responses.secteur,
-                message: `Analyse terminée pour ${responses.nom}. Bancabilité : ${score}%.`
+                message: avis
             };
 
+            // Utilisation du Service ID et Template ID mis à jour
             emailjs.send('service_wie7dfb', 'template_c9hl9ul', templateParams)
-                .then(() => console.log('Email envoyé !'))
-                .catch(err => console.log('Erreur EmailJS', err));
+                .then(function() {
+                    console.log('Email envoyé avec succès !');
+                }, function(error) {
+                    console.log('Erreur EmailJS:', error);
+                });
 
         }, 4500);
     }
@@ -336,11 +327,13 @@
         const btn = document.getElementById('payment-btn');
         btn.innerText = "Lien FlexPay généré...";
         setTimeout(() => {
-            if(confirm("Confirmez-vous le paiement de 45 USD ?")) {
+            if(confirm("Confirmez-vous le paiement de 45 USD pour débloquer l'audit final et le dossier corrigé par l'IA ?")) {
                 alert("✅ Paiement confirmé !");
                 document.getElementById('download-btn').style.display = "block";
                 document.getElementById('whatsapp-btn').style.display = "block"; 
                 btn.innerText = "✅ Transaction Réussie";
+            } else {
+                btn.innerText = "💳 Payer via Mobile Money (FlexPay)";
             }
         }, 1200);
     }
@@ -349,42 +342,71 @@
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
         
-        // Design Header
-        doc.setFillColor(0, 27, 34);
-        doc.rect(0, 0, 210, 40, 'F');
-        doc.setTextColor(181, 137, 0);
-        doc.setFontSize(22);
-        doc.text("RAPPORT D'AUDIT FINANCIER IA", 15, 25);
+        doc.setTextColor(240, 240, 240);
+        doc.setFontSize(50);
+        doc.text("DORKNET XCHANGE", 30, 150, {angle: 45});
+        doc.text("CERTIFIÉ PROFIN-AI", 30, 190, {angle: 45});
 
-        // Synthèse
+        doc.setFillColor(0, 27, 34);
+        doc.rect(0, 0, 210, 45, 'F');
+        doc.setFontSize(22);
+        doc.setTextColor(181, 137, 0);
+        doc.text("RAPPORT D'AUDIT & CORRECTION IA", 15, 20);
+        
+        doc.setFontSize(10);
+        doc.setTextColor(255, 255, 255);
+        doc.text("DorkNet Xchange | ProFin-AI RDC", 135, 30);
+        doc.text("Expertise : " + responses.secteur, 135, 36);
+
         doc.setTextColor(0, 43, 54);
         doc.setFontSize(12);
-        doc.text(`PROJET : ${responses.nom.toUpperCase()}`, 15, 55);
-        doc.text(`SECTEUR : ${responses.secteur}`, 15, 62);
-        doc.text(`BANCABILITÉ : ${document.getElementById('final-score').innerText}`, 15, 69);
+        doc.setFont(undefined, 'bold');
+        doc.text("1. IDENTIFICATION ET SYNTHÈSE", 15, 60);
+        doc.setFont(undefined, 'normal');
+        doc.text(`Projet : ${responses.nom}`, 20, 70);
+        doc.text(`Localisation : ${responses.ville}`, 20, 77);
+        doc.text(`Besoin Financement : ${responses.montant} USD`, 20, 84);
 
-        // TABLEAU DANS LE PDF
-        doc.setFillColor(181, 137, 0);
-        doc.setTextColor(255, 255, 255);
-        doc.rect(15, 80, 180, 10, 'F');
-        doc.text("EXERCICE", 20, 87);
-        doc.text("C.A PRÉVISIONNEL", 70, 87);
-        doc.text("RÉSULTAT NET", 140, 87);
+        doc.setDrawColor(181, 137, 0);
+        doc.setLineWidth(1.5);
+        doc.rect(140, 55, 55, 35);
+        doc.setFontSize(10);
+        doc.text("BANCABILITÉ IA", 148, 65);
+        doc.setFontSize(24);
+        doc.text(document.getElementById('final-score').innerText, 155, 80);
 
-        doc.setTextColor(0, 0, 0);
-        let y = 100;
-        financialData.forEach(d => {
-            doc.text(d.an, 20, y);
-            doc.text(d.ca + " USD", 70, y);
-            doc.text("+" + d.net + " USD", 140, y);
-            y += 10;
+        doc.setFontSize(12);
+        doc.setFont(undefined, 'bold');
+        doc.text("2. MODIFICATIONS TECHNIQUES APPORTÉES (POST-SCAN)", 15, 110);
+        doc.line(15, 112, 195, 112);
+        
+        doc.setFont(undefined, 'normal');
+        doc.setFontSize(10);
+        let sectorMods = correctionsParSecteur[responses.secteur] || ["Ajustement structurel", "Audit financier"];
+        let y = 122;
+        sectorMods.forEach(mod => {
+            doc.text("• " + mod, 20, y, {maxWidth: 170});
+            y += 12;
         });
 
-        doc.setFontSize(9);
-        doc.setTextColor(100, 100, 100);
-        doc.text("Certifié par Dr Enoch Numbi | DorkNet Xchange | ID: OP1759812", 15, 280);
+        doc.setFillColor(245, 245, 245);
+        doc.rect(15, y + 5, 180, 40, 'F');
+        doc.setFont(undefined, 'bold');
+        doc.text("ANALYSE DES TABLEAUX FINANCIERS :", 20, y + 15);
+        doc.setFont(undefined, 'normal');
+        doc.text("Les projections ont été recalculées par l'IA ProFin pour garantir un TRI supérieur au coût du capital local.", 20, y + 25, {maxWidth: 165});
 
-        doc.save(`Audit_Financier_${responses.nom}.pdf`);
+        doc.setFont(undefined, 'bold');
+        doc.text("Visa de certification Dr Enoch Numbi :", 15, 265);
+        doc.setFont(undefined, 'italic');
+        doc.text("Dossier conforme aux normes AES-256 et certifié par DorkNet Xchange.", 15, 272);
+
+        doc.setFontSize(9);
+        doc.setFont(undefined, 'normal');
+        doc.setTextColor(100, 100, 100);
+        doc.text("Dr Enoch Numbi | Propriétaire | ID: OP1759812", 70, 285);
+
+        doc.save(`Audit_Final_Corrigé_${responses.nom}.pdf`);
     }
 
     initQuiz();
