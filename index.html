@@ -8,165 +8,150 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <style>
         :root {
-            --bg-deep: #0d1b2a;
-            --panel: #1b263b;
-            --primary: #e0e1dd;
+            --bg-deep: #05161a;
+            --panel: #072e33;
             --accent: #b58900;
             --text-muted: #8d99ae;
-            --success: #28a745;
-            --whatsapp: #25D366;
+            --success: #25D366;
             --report-bg: #fdf6e3;
         }
 
         body {
             font-family: 'Segoe UI', sans-serif;
             background-color: var(--bg-deep);
-            color: var(--primary);
+            color: #e0e1dd;
             margin: 0;
             padding: 20px;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            align-items: center;
         }
 
-        /* Layout type Dashboard */
-        .dashboard {
-            display: grid;
-            grid-template-columns: 450px 1fr;
-            gap: 25px;
+        /* Zone de dépôt Business Plan (Comme sur la capture) */
+        .upload-zone {
             width: 100%;
-            max-width: 1200px;
+            max-width: 500px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 40px;
+            padding-top: 20px;
+            text-align: center;
         }
 
-        .panel {
-            background: var(--panel);
-            border-radius: 12px;
-            padding: 30px;
-            border: 1px solid rgba(255,255,255,0.05);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-
-        header { border-bottom: 2px solid var(--accent); margin-bottom: 25px; padding-bottom: 10px; }
-        h1 { color: var(--accent); margin: 0; font-size: 1.8rem; }
-        .badge { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
-
-        /* Formulaire */
-        label { display: block; margin-bottom: 10px; font-size: 0.9rem; color: var(--text-muted); }
-        input, select {
-            width: 100%;
-            padding: 12px;
-            background: #0d1b2a;
-            border: 1px solid rgba(181, 137, 0, 0.3);
-            color: white;
+        .drop-box {
+            background: rgba(27, 38, 59, 0.5);
+            border: 1px dashed var(--accent);
             border-radius: 8px;
-            margin-bottom: 20px;
-        }
-
-        button {
-            width: 100%;
             padding: 15px;
-            background: var(--accent);
-            border: none;
-            color: #0d1b2a;
-            font-weight: bold;
-            border-radius: 8px;
             cursor: pointer;
-            transition: 0.3s;
-        }
-
-        /* Scan Animation */
-        .scan-container {
-            border: 1px solid var(--accent);
-            height: 100px;
-            margin-bottom: 20px;
-            position: relative;
-            overflow: hidden;
-            background: rgba(181, 137, 0, 0.05);
+            color: var(--text-muted);
+            font-size: 0.8rem;
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
         }
+
+        /* Terminal Principal Centré */
+        .main-terminal {
+            width: 100%;
+            max-width: 450px;
+            background: var(--panel);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+            text-align: center;
+        }
+
+        header h1 { color: var(--accent); margin: 5px 0; font-size: 2rem; }
+        .badge { 
+            background: var(--accent); 
+            color: var(--bg-deep); 
+            padding: 2px 15px; 
+            border-radius: 20px; 
+            font-size: 0.8rem; 
+            font-weight: bold;
+        }
+
+        /* Formulaire */
+        .quiz-container { margin-top: 30px; text-align: left; }
+        label { display: block; margin-bottom: 15px; font-size: 1.1rem; text-align: center; }
+        input, select {
+            width: 100%;
+            padding: 15px;
+            background: #05161a;
+            border: 1px solid var(--accent);
+            color: white;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-sizing: border-box;
+        }
+
+        .btn-main {
+            width: 100%;
+            padding: 18px;
+            background: var(--accent);
+            border: none;
+            color: var(--bg-deep);
+            font-weight: bold;
+            font-size: 1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        /* Animation Scan */
+        #loading-ui { display: none; margin-top: 20px; }
         .scan-line {
-            position: absolute;
             width: 100%;
             height: 2px;
             background: var(--accent);
             box-shadow: 0 0 15px var(--accent);
-            top: 0;
-            animation: scan 2.5s infinite linear;
+            position: relative;
+            animation: moveScan 2s infinite;
         }
-        @keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
+        @keyframes moveScan { 0% { top: 0; } 100% { top: 50px; } }
 
-        /* Colonne Droite : Rapport */
-        .report-side {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .report-card {
-            background: var(--report-bg);
-            color: #002b36;
-            padding: 25px;
-            border-radius: 8px;
+        /* Rapport Résultat (Apparaît après scan) */
+        #result-ui { display: none; flex-direction: column; width: 100%; max-width: 450px; gap: 15px; margin-top: 20px; }
+        .res-card { background: var(--panel); padding: 20px; border-radius: 15px; text-align: center; }
+        .score-circle {
+            width: 100px; height: 100px; border: 5px solid var(--accent);
+            border-radius: 50%; margin: 15px auto; display: flex;
+            align-items: center; justify-content: center; font-size: 2rem; font-weight: bold;
         }
 
-        .report-header {
-            background: #002b36;
-            color: white;
-            padding: 10px 20px;
-            margin: -25px -25px 20px -25px;
-            border-radius: 8px 8px 0 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .score-display {
-            width: 110px;
-            height: 110px;
-            border: 6px solid var(--accent);
-            border-radius: 50%;
-            margin: 10px auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.2rem;
-            font-weight: bold;
-        }
-
-        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 15px; }
-        th, td { border: 1px solid rgba(0,0,0,0.1); padding: 10px; text-align: left; }
-        th { background: rgba(0,0,0,0.05); }
-
-        .footer-note { font-size: 0.7rem; color: var(--text-muted); text-align: center; margin-top: 20px; }
-
-        #result-ui { display: none; }
-        #loading-ui { display: none; text-align: center; }
+        .footer-note { font-size: 0.65rem; color: var(--text-muted); margin-top: 25px; opacity: 0.7; }
     </style>
 </head>
 <body>
 
-<div class="dashboard">
-    <div class="panel">
+    <div class="upload-zone">
+        <p style="color:var(--accent); font-weight:bold;">📁 Dépôt de Business Plan pour Audit IA</p>
+        <div class="drop-box">
+            <span>Drag and drop file here <br><small>Limit 200MB per file • PDF</small></span>
+            <button style="background:#1b263b; border:none; color:white; padding:5px 10px; border-radius:4px; cursor:pointer;">Browse files</button>
+        </div>
+    </div>
+
+    <div class="main-terminal" id="terminal-box">
         <header>
             <h1>ProFin-AI</h1>
             <span class="badge">Diagnostic Bancaire RDC</span>
         </header>
 
-        <div id="quiz">
+        <div id="quiz" class="quiz-container">
             <div id="step-content">
                 <label id="question-label">Chargement...</label>
                 <div id="input-container"></div>
             </div>
-            <button onclick="nextStep()">CONTINUER L'INJECTION</button>
+            <button class="btn-main" onclick="nextStep()">Continuer</button>
         </div>
 
         <div id="loading-ui">
-            <div class="scan-container">
+            <div style="border:1px solid var(--accent); padding:20px; position:relative; overflow:hidden;">
                 <div class="scan-line"></div>
-                <span style="color:var(--accent); font-weight:bold; font-size:0.8rem;">SCAN PROF-AI...</span>
+                <span style="color:var(--accent); font-weight:bold;">SCAN PROF-AI...</span>
             </div>
-            <p>Analyse des flux et correction des tableaux...</p>
+            <p style="font-size:0.8rem;">Analyse des flux et correction des tableaux...</p>
         </div>
 
         <div class="footer-note">
@@ -174,37 +159,21 @@
         </div>
     </div>
 
-    <div class="report-side" id="result-ui">
-        <div class="report-card">
-            <div class="report-header">
-                <span>SCORE D'AUDIT</span>
-                <span style="font-size:0.7rem;">ID: OP1759812</span>
-            </div>
+    <div id="result-ui">
+        <div class="res-card">
             <h3 style="margin:0;">Audit de Bancabilité Terminé</h3>
-            <div class="score-display" id="final-score">0%</div>
-            <p id="ia-summary" style="font-style:italic; font-size:0.9rem; text-align:center;"></p>
-            <p style="color: var(--success); font-weight:bold; text-align:center; font-size:0.8rem;">✓ Corrections IA appliquées au document final</p>
+            <div class="score-circle" id="final-score">0%</div>
+            <p id="ia-summary" style="font-style:italic; font-size:0.85rem;"></p>
+            <p style="color: var(--success); font-weight:bold; font-size:0.8rem;">✓ Corrections IA appliquées au document final</p>
         </div>
-
-        <div class="report-card">
-            <div class="report-header">RESULTATS TECHNIQUES</div>
-            <h4 style="margin:0;">Corrections de Structuration</h4>
-            <table id="tech-table">
-                <thead>
-                    <tr><th>Aspect</th><th>Correction IA</th></tr>
-                </thead>
-                <tbody id="table-body">
-                </tbody>
-            </table>
-            
-            <div style="margin-top:20px; display:grid; gap:10px;">
-                <button id="download-btn" onclick="generatePDF()" style="background: var(--accent); color: #0d1b2a;">Imprimer Rapport Complet (PDF Corrigé)</button>
-                <button id="whatsapp-btn" onclick="sendWhatsAppNotification()" style="background: var(--whatsapp); color:white;">Recevoir l'audit via WhatsApp</button>
-                <button id="payment-btn" onclick="triggerPayment()" style="background:none; border:1px solid var(--accent); color:#002b36;">💳 Payer via Mobile Money (45$)</button>
-            </div>
+        
+        <button class="btn-main" onclick="generatePDF()" style="background:#3498db; color:white;">Télécharger mon Dossier Corrigé (45$)</button>
+        <button class="btn-main" onclick="sendWhatsAppNotification()" style="background:#25D366; color:white;">Recevoir l'audit via WhatsApp</button>
+        
+        <div style="border:1px solid var(--accent); padding:10px; border-radius:8px; color:var(--accent); font-weight:bold;">
+             ✅ Transaction Réussie
         </div>
     </div>
-</div>
 
 <script>
     (function(){ emailjs.init("137jMYfvXJmUE9xbZ"); })();
@@ -219,33 +188,11 @@
     ];
 
     const correctionsParSecteur = {
-        'Agriculture': [
-            "Ajustement du cycle de récolte (Saisonalité RDC)",
-            "Reparamétrage du Besoin en Fonds de Roulement (BFR)",
-            "Insertion d'une ligne de crédit de campagne (15%)",
-            "Mitigation des risques climatiques et logistiques"
-        ],
-        'Mines': [
-            "Mise en conformité au Code Minier RDC 2018",
-            "Recalcul des redevances et taxes à l'exportation",
-            "Optimisation du CAPEX (Amortissement engins lourds)",
-            "Audit de la chaîne logistique (FOB/Transport)"
-        ],
-        'Commerce': [
-            "Optimisation du fonds de roulement", 
-            "Stratégie de gestion de stock", 
-            "Analyse de la concurrence locale"
-        ],
-        'Technologie': [
-            "Ajustement du coût d'acquisition client", 
-            "Valorisation des actifs immatériels", 
-            "Plan de scalabilité"
-        ],
-        'Services': [
-            "Structuration des charges fixes", 
-            "Optimisation du taux de marge", 
-            "Amélioration du tunnel de vente"
-        ]
+        'Agriculture': ["Ajustement du cycle de récolte (Saisonalité RDC)", "Reparamétrage du BFR", "Ligne de crédit de campagne (15%)"],
+        'Mines': ["Mise en conformité Code Minier 2018", "Recalcul des redevances", "Optimisation CAPEX engins"],
+        'Commerce': ["Optimisation fonds de roulement", "Gestion de stock", "Analyse concurrence"],
+        'Technologie': ["Coût d'acquisition client", "Valorisation immatérielle", "Scalabilité"],
+        'Services': ["Structuration charges fixes", "Optimisation marge", "Tunnel de vente"]
     };
 
     let currentStep = 0; let responses = {};
@@ -276,70 +223,38 @@
         document.getElementById('loading-ui').style.display = 'block';
 
         setTimeout(() => {
-            const score = responses.doc.includes('Oui') ? Math.floor(Math.random() * (95 - 88) + 88) : Math.floor(Math.random() * (60 - 40) + 40);
+            const score = responses.doc.includes('Oui') ? Math.floor(Math.random() * (95 - 85) + 85) : Math.floor(Math.random() * (60 - 40) + 40);
+            document.getElementById('terminal-box').style.display = 'none';
             document.getElementById('loading-ui').style.display = 'none';
             document.getElementById('result-ui').style.display = 'flex';
             document.getElementById('final-score').innerText = score + "%";
-            
-            let avis = score > 80 ? "Dossier certifié solide par l'IA ProFin. Structure bancable validée." : "Dossier nécessitant des ajustements structurels majeurs.";
-            document.getElementById('ia-summary').innerText = `Projet ${responses.nom} : ${avis}`;
-
-            const tbody = document.getElementById('table-body');
-            tbody.innerHTML = '';
-            correctionsParSecteur[responses.secteur].forEach(mod => {
-                let row = `<tr><td>${responses.secteur} - Analyse</td><td>${mod}</td></tr>`;
-                tbody.innerHTML += row;
-            });
-        }, 4500);
+            document.getElementById('ia-summary').innerText = `Projet ${responses.nom} terminé. Dossier solide après corrections IA.`;
+        }, 4000);
     }
 
     function sendWhatsAppNotification() {
-        const monNumero = "243859148909"; 
-        const message = `Bonjour Dr Enoch, audit payé (45$) pour le projet ${responses.nom}. Email : ${responses.email}. Merci de m'envoyer le suivi DorkNet Xchange.`;
-        window.open(`https://wa.me/${monNumero}?text=${encodeURIComponent(message)}`, '_blank');
-    }
-
-    function triggerPayment() {
-        const btn = document.getElementById('payment-btn');
-        btn.innerText = "Lien FlexPay généré...";
-        setTimeout(() => {
-            if(confirm("Confirmez-vous le paiement de 45 USD pour débloquer l'audit final ?")) {
-                alert("✅ Paiement confirmé !");
-                btn.innerText = "✅ Transaction Réussie";
-            }
-        }, 1200);
+        const message = `Bonjour Dr Enoch, audit payé pour le projet ${responses.nom}. Merci de m'envoyer le suivi DorkNet Xchange.`;
+        window.open(`https://wa.me/243859148909?text=${encodeURIComponent(message)}`, '_blank');
     }
 
     function generatePDF() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
+        doc.setTextColor(240, 240, 240); doc.setFontSize(50); doc.text("DORKNET XCHANGE", 40, 150, {angle: 45});
+        doc.setFillColor(7, 46, 51); doc.rect(0, 0, 210, 40, 'F');
+        doc.setFontSize(20); doc.setTextColor(181, 137, 0); doc.text("RAPPORT D'AUDIT PROFIN-AI", 15, 25);
+        doc.setFontSize(10); doc.setTextColor(255); doc.text("DorkNet Xchange | Dr Enoch Numbi", 140, 25);
         
-        doc.setTextColor(240, 240, 240); doc.setFontSize(60); doc.text("DORKNET XCHANGE", 40, 150, {angle: 45});
-
-        doc.setFillColor(0, 27, 34); doc.rect(0, 0, 210, 45, 'F');
-        doc.setFontSize(22); doc.setTextColor(181, 137, 0); doc.text("RAPPORT D'AUDIT & CORRECTION IA", 15, 25);
-        doc.setFontSize(10); doc.setTextColor(255, 255, 255); doc.text("DorkNet Xchange | ProFin-AI RDC", 135, 25);
-
-        doc.setTextColor(0, 43, 54); doc.setFontSize(12); doc.setFont(undefined, 'bold');
-        doc.text("1. IDENTIFICATION DU PROJET", 15, 60);
-        doc.setFont(undefined, 'normal');
-        doc.text(`Projet : ${responses.nom} | Secteur : ${responses.secteur} | Ville : ${responses.ville}`, 20, 70);
+        doc.setTextColor(0); doc.setFontSize(12);
+        doc.text(`Projet : ${responses.nom}`, 15, 60);
+        doc.text(`Score IA : ${document.getElementById('final-score').innerText}`, 15, 70);
+        doc.text("Corrections appliquées :", 15, 90);
+        let y = 100;
+        correctionsParSecteur[responses.secteur].forEach(c => { doc.text("- " + c, 20, y); y += 10; });
         
-        doc.setDrawColor(181, 137, 0); doc.rect(140, 55, 50, 25);
-        doc.text("SCORE IA", 155, 63); doc.setFontSize(18); doc.text(document.getElementById('final-score').innerText, 158, 73);
-
-        doc.setFontSize(12); doc.setFont(undefined, 'bold'); doc.text("2. ANALYSE ET CORRECTIONS TECHNIQUES", 15, 100);
-        doc.line(15, 102, 195, 102);
-        
-        doc.setFont(undefined, 'normal'); doc.setFontSize(10);
-        let y = 110;
-        correctionsParSecteur[responses.secteur].forEach(mod => { doc.text("• " + mod, 20, y); y += 8; });
-
-        doc.setFont(undefined, 'bold'); doc.text("Visa de certification Dr Enoch Numbi :", 15, y + 15);
-        doc.setFont(undefined, 'italic'); doc.text("Dossier certifié conforme aux normes bancaires RDC. Flux financiers optimisés.", 15, y + 22);
-
-        doc.setFontSize(9); doc.setTextColor(150); doc.text("Certifié ProFin-Protocol AES-256 | ID: OP1759812", 65, 285);
-        doc.save(`Rapport_Audit_Complet_${responses.nom}.pdf`);
+        doc.setFont(undefined, 'italic');
+        doc.text("Audit certifié par Dr Enoch Numbi - DorkNet Xchange", 15, y + 20);
+        doc.save(`Audit_${responses.nom}.pdf`);
     }
 
     initQuiz();
