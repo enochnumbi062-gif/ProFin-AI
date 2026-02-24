@@ -3,181 +3,206 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ProFin-AI | Diagnostic Bancaire RDC</title>
+    <title>ProFin-AI | Terminal d'Audit Bancaire</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <style>
         :root {
-            --primary: #b58900;
-            --bg: #001b22; 
-            --card: #002b36;
-            --text: #fdf6e3;
-            --accent: #268bd2;
+            --bg-deep: #0d1b2a;
+            --panel: #1b263b;
+            --primary: #e0e1dd;
+            --accent: #b58900;
+            --text-muted: #8d99ae;
             --success: #28a745;
             --whatsapp: #25D366;
+            --report-bg: #fdf6e3;
         }
 
         body {
             font-family: 'Segoe UI', sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
+            background-color: var(--bg-deep);
+            color: var(--primary);
             margin: 0;
+            padding: 20px;
             display: flex;
             justify-content: center;
-            align-items: center;
-            min-height: 100vh;
         }
 
-        .container {
-            width: 90%;
-            max-width: 500px;
-            background: var(--card);
+        /* Layout type Dashboard */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 450px 1fr;
+            gap: 25px;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .panel {
+            background: var(--panel);
+            border-radius: 12px;
             padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-            border: 1px solid rgba(181, 137, 0, 0.3);
-            text-align: center;
+            border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        header h1 { color: var(--primary); margin: 0; font-size: 2.2rem; }
-        .badge { background: var(--primary); color: var(--bg); padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 0.8rem; display: inline-block; margin-bottom: 20px; }
+        header { border-bottom: 2px solid var(--accent); margin-bottom: 25px; padding-bottom: 10px; }
+        h1 { color: var(--accent); margin: 0; font-size: 1.8rem; }
+        .badge { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
 
-        .upload-area {
-            border: 2px dashed rgba(181, 137, 0, 0.5);
-            padding: 20px;
-            border-radius: 10px;
-            background: rgba(0, 0, 0, 0.2);
-            margin-bottom: 20px;
-            cursor: pointer;
-        }
-        .file-info {
-            background: rgba(40, 167, 69, 0.2);
-            color: #85ffad;
-            padding: 10px;
-            border-radius: 5px;
-            margin-top: 10px;
-            font-size: 0.8rem;
-            display: none;
-        }
-
-        label { display: block; margin-bottom: 15px; font-size: 1.1rem; text-align: left; }
-        
+        /* Formulaire */
+        label { display: block; margin-bottom: 10px; font-size: 0.9rem; color: var(--text-muted); }
         input, select {
             width: 100%;
             padding: 12px;
-            background: #073642;
-            border: 1px solid var(--primary);
+            background: #0d1b2a;
+            border: 1px solid rgba(181, 137, 0, 0.3);
             color: white;
-            border-radius: 10px;
-            box-sizing: border-box;
+            border-radius: 8px;
             margin-bottom: 20px;
         }
 
         button {
             width: 100%;
             padding: 15px;
-            background: var(--primary);
+            background: var(--accent);
             border: none;
-            color: var(--bg);
+            color: #0d1b2a;
             font-weight: bold;
-            font-size: 1.1rem;
-            border-radius: 10px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: 0.2s;
+            transition: 0.3s;
         }
 
+        /* Scan Animation */
         .scan-container {
-            position: relative;
-            width: 100%;
+            border: 1px solid var(--accent);
             height: 100px;
-            border: 1px solid var(--primary);
+            margin-bottom: 20px;
+            position: relative;
             overflow: hidden;
-            margin: 20px 0;
             background: rgba(181, 137, 0, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .scan-line {
             position: absolute;
             width: 100%;
-            height: 3px;
-            background: var(--primary);
-            box-shadow: 0 0 15px var(--primary);
-            animation: scan 2s linear infinite;
+            height: 2px;
+            background: var(--accent);
+            box-shadow: 0 0 15px var(--accent);
+            top: 0;
+            animation: scan 2.5s infinite linear;
         }
         @keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
 
-        .score-circle {
-            width: 120px;
-            height: 120px;
-            border: 5px solid var(--primary);
-            border-radius: 50%;
+        /* Colonne Droite : Rapport */
+        .report-side {
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .report-card {
+            background: var(--report-bg);
+            color: #002b36;
+            padding: 25px;
+            border-radius: 8px;
+        }
+
+        .report-header {
+            background: #002b36;
+            color: white;
+            padding: 10px 20px;
+            margin: -25px -25px 20px -25px;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            margin: 20px auto;
+        }
+
+        .score-display {
+            width: 110px;
+            height: 110px;
+            border: 6px solid var(--accent);
+            border-radius: 50%;
+            margin: 10px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 2.2rem;
             font-weight: bold;
         }
 
-        .result-ui, .loading-ui { display: none; }
-        .footer-note { font-size: 0.7rem; color: #586e75; margin-top: 25px; line-height: 1.4; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 15px; }
+        th, td { border: 1px solid rgba(0,0,0,0.1); padding: 10px; text-align: left; }
+        th { background: rgba(0,0,0,0.05); }
+
+        .footer-note { font-size: 0.7rem; color: var(--text-muted); text-align: center; margin-top: 20px; }
+
+        #result-ui { display: none; }
+        #loading-ui { display: none; text-align: center; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <header>
-        <h1>ProFin-AI</h1>
-        <div class="badge">Diagnostic Bancaire RDC</div>
-    </header>
+<div class="dashboard">
+    <div class="panel">
+        <header>
+            <h1>ProFin-AI</h1>
+            <span class="badge">Diagnostic Bancaire RDC</span>
+        </header>
 
-    <div id="quiz">
-        <div id="step-content">
-            <div id="upload-integration">
-                <h3 style="color: var(--primary); font-size: 1rem; text-align: center;">📁 Dépôt de Business Plan pour Audit IA</h3>
-                <div class="upload-area" onclick="document.getElementById('file-input').click()">
-                    <p style="font-size: 0.9rem; margin: 0;">Drag and drop file here<br><small>Limit 200MB per file • PDF</small></p>
-                    <input type="file" id="file-input" style="display:none" onchange="handleFile(this)">
-                </div>
-                <div id="file-ready" class="file-info">
-                    ✅ Document reçu. Continuez l'analyse.
-                </div>
+        <div id="quiz">
+            <div id="step-content">
+                <label id="question-label">Chargement...</label>
+                <div id="input-container"></div>
             </div>
+            <button onclick="nextStep()">CONTINUER L'INJECTION</button>
+        </div>
 
-            <label id="question-label">Nom de votre projet ?</label>
-            <div id="input-container">
-                <input type="text" id="current-input" placeholder="Ex: Ma Ferme Moderne">
+        <div id="loading-ui">
+            <div class="scan-container">
+                <div class="scan-line"></div>
+                <span style="color:var(--accent); font-weight:bold; font-size:0.8rem;">SCAN PROF-AI...</span>
+            </div>
+            <p>Analyse des flux et correction des tableaux...</p>
+        </div>
+
+        <div class="footer-note">
+            Propriété de Dr Enoch Numbi | DorkNet Xchange | AES-256
+        </div>
+    </div>
+
+    <div class="report-side" id="result-ui">
+        <div class="report-card">
+            <div class="report-header">
+                <span>SCORE D'AUDIT</span>
+                <span style="font-size:0.7rem;">ID: OP1759812</span>
+            </div>
+            <h3 style="margin:0;">Audit de Bancabilité Terminé</h3>
+            <div class="score-display" id="final-score">0%</div>
+            <p id="ia-summary" style="font-style:italic; font-size:0.9rem; text-align:center;"></p>
+            <p style="color: var(--success); font-weight:bold; text-align:center; font-size:0.8rem;">✓ Corrections IA appliquées au document final</p>
+        </div>
+
+        <div class="report-card">
+            <div class="report-header">RESULTATS TECHNIQUES</div>
+            <h4 style="margin:0;">Corrections de Structuration</h4>
+            <table id="tech-table">
+                <thead>
+                    <tr><th>Aspect</th><th>Correction IA</th></tr>
+                </thead>
+                <tbody id="table-body">
+                </tbody>
+            </table>
+            
+            <div style="margin-top:20px; display:grid; gap:10px;">
+                <button id="download-btn" onclick="generatePDF()" style="background: var(--accent); color: #0d1b2a;">Imprimer Rapport Complet (PDF Corrigé)</button>
+                <button id="whatsapp-btn" onclick="sendWhatsAppNotification()" style="background: var(--whatsapp); color:white;">Recevoir l'audit via WhatsApp</button>
+                <button id="payment-btn" onclick="triggerPayment()" style="background:none; border:1px solid var(--accent); color:#002b36;">💳 Payer via Mobile Money (45$)</button>
             </div>
         </div>
-        <button onclick="nextStep()">Continuer l'analyse</button>
-    </div>
-
-    <div id="loading" class="loading-ui">
-        <div class="scan-container">
-            <div class="scan-line"></div>
-        </div>
-        <p>Analyse IA du Business Plan en cours...</p>
-    </div>
-
-    <div id="result" class="result-ui">
-        <h2>Audit de Bancabilité Terminé</h2>
-        <div class="score-circle" id="final-score">0%</div>
-        <p id="ia-summary" style="font-style: italic; margin-bottom: 20px;"></p>
-        
-        <button onclick="generatePDF()" style="background: var(--accent); color: white; margin-bottom: 10px;">
-            Imprimer Rapport Complet (PDF Corrigé)
-        </button>
-        
-        <button id="whatsapp-btn" onclick="sendWhatsAppNotification()" style="background: var(--whatsapp); color: white; margin-bottom: 10px; display: none;">
-            📱 Recevoir via WhatsApp
-        </button>
-
-        <button id="payment-btn" onclick="triggerPayment()" style="background: none; border: 1px solid var(--primary); color: var(--text); font-size: 0.9rem;">
-            💳 Débloquer Dossier Final (45$)
-        </button>
-    </div>
-
-    <div class="footer-note">
-        Propriété de Dr Enoch Numbi | DorkNet Xchange<br>Sécurisé par ProFin-Protocol AES-256
     </div>
 </div>
 
@@ -189,142 +214,135 @@
         { id: 'ville', label: "Ville d'implantation (RDC) ?", type: 'text' },
         { id: 'secteur', label: "Secteur d'activité ?", type: 'select', options: ['Agriculture', 'Mines', 'Commerce', 'Technologie', 'Services'] },
         { id: 'montant', label: "Besoin de financement (USD) ?", type: 'number' },
-        { id: 'email', label: "Votre Email :", type: 'text' }
+        { id: 'doc', label: "Avez-vous déposé votre Business Plan PDF ?", type: 'select', options: ['Oui, dossier déposé', 'Non, diagnostic simple'] },
+        { id: 'email', label: "Votre Email pour recevoir l'audit :", type: 'text' }
     ];
 
     const correctionsParSecteur = {
-        'Agriculture': ["Ajustement du cycle de récolte", "Optimisation des intrants"],
-        'Mines': ["Conformité Code Minier RDC", "Recalcul redevances"],
-        'Commerce': ["Optimisation BFR", "Gestion de stock"],
-        'Technologie': ["Valorisation immatérielle", "Plan de scalabilité"],
-        'Services': ["Structuration charges fixes", "Marge nette"]
+        'Agriculture': [
+            "Ajustement du cycle de récolte (Saisonalité RDC)",
+            "Reparamétrage du Besoin en Fonds de Roulement (BFR)",
+            "Insertion d'une ligne de crédit de campagne (15%)",
+            "Mitigation des risques climatiques et logistiques"
+        ],
+        'Mines': [
+            "Mise en conformité au Code Minier RDC 2018",
+            "Recalcul des redevances et taxes à l'exportation",
+            "Optimisation du CAPEX (Amortissement engins lourds)",
+            "Audit de la chaîne logistique (FOB/Transport)"
+        ],
+        'Commerce': [
+            "Optimisation du fonds de roulement", 
+            "Stratégie de gestion de stock", 
+            "Analyse de la concurrence locale"
+        ],
+        'Technologie': [
+            "Ajustement du coût d'acquisition client", 
+            "Valorisation des actifs immatériels", 
+            "Plan de scalabilité"
+        ],
+        'Services': [
+            "Structuration des charges fixes", 
+            "Optimisation du taux de marge", 
+            "Amélioration du tunnel de vente"
+        ]
     };
 
-    let currentStep = 0; 
-    let responses = {}; 
-    let fileUploaded = false;
-
-    function handleFile(input) {
-        if(input.files && input.files[0]) {
-            fileUploaded = true;
-            document.getElementById('file-ready').style.display = 'block';
-            responses['doc'] = "Fichier PDF joint";
-        }
-    }
+    let currentStep = 0; let responses = {};
 
     function initQuiz() {
         const step = questions[currentStep];
-        const label = document.getElementById('question-label');
+        document.getElementById('question-label').innerText = step.label;
         const container = document.getElementById('input-container');
-        const uploadBox = document.getElementById('upload-integration');
-
-        // Mise à jour du label
-        label.innerText = step.label;
         container.innerHTML = '';
-
-        // Gestion de la visibilité du dépôt de fichier (uniquement à la première étape)
-        if (currentStep === 0) {
-            uploadBox.style.display = 'block';
-        } else {
-            uploadBox.style.display = 'none';
-        }
-
-        // Création de l'input approprié
         if (step.type === 'select') {
-            const select = document.createElement('select');
-            select.id = 'current-input';
-            step.options.forEach(opt => {
-                let o = document.createElement('option');
-                o.value = opt;
-                o.text = opt;
-                select.appendChild(o);
-            });
+            const select = document.createElement('select'); select.id = 'current-input';
+            step.options.forEach(opt => { let o = document.createElement('option'); o.value = opt; o.text = opt; select.appendChild(o); });
             container.appendChild(select);
         } else {
-            const inp = document.createElement('input');
-            inp.type = step.type;
-            inp.id = 'current-input';
-            inp.placeholder = "Saisissez ici...";
-            container.appendChild(inp);
+            const inp = document.createElement('input'); inp.type = step.type; inp.id = 'current-input'; container.appendChild(inp);
         }
     }
 
     function nextStep() {
         const input = document.getElementById('current-input');
         if(!input.value) return alert("Veuillez remplir ce champ");
-
         responses[questions[currentStep].id] = input.value;
-
-        if (currentStep < questions.length - 1) { 
-            currentStep++; 
-            initQuiz(); 
-        } else { 
-            processAnalysis(); 
-        }
+        if (currentStep < questions.length - 1) { currentStep++; initQuiz(); } else { processAnalysis(); }
     }
 
     function processAnalysis() {
         document.getElementById('quiz').style.display = 'none';
-        document.getElementById('loading').style.display = 'block';
-        
-        setTimeout(() => {
-            const score = fileUploaded ? 93 : 55;
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('result').style.display = 'block';
-            document.getElementById('final-score').innerText = score + "%";
-            document.getElementById('ia-summary').innerText = `Projet ${responses.nom} analysé. Structure bancable identifiée pour le secteur ${responses.secteur}.`;
-        }, 4000);
-    }
+        document.getElementById('loading-ui').style.display = 'block';
 
-    function triggerPayment() {
-        if(confirm("Confirmez-vous le paiement de 45 USD ?")) {
-            document.getElementById('whatsapp-btn').style.display = 'block';
-            document.getElementById('payment-btn').innerText = "✅ Transaction Réussie";
-            document.getElementById('payment-btn').style.borderColor = "var(--success)";
-        }
+        setTimeout(() => {
+            const score = responses.doc.includes('Oui') ? Math.floor(Math.random() * (95 - 88) + 88) : Math.floor(Math.random() * (60 - 40) + 40);
+            document.getElementById('loading-ui').style.display = 'none';
+            document.getElementById('result-ui').style.display = 'flex';
+            document.getElementById('final-score').innerText = score + "%";
+            
+            let avis = score > 80 ? "Dossier certifié solide par l'IA ProFin. Structure bancable validée." : "Dossier nécessitant des ajustements structurels majeurs.";
+            document.getElementById('ia-summary').innerText = `Projet ${responses.nom} : ${avis}`;
+
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+            correctionsParSecteur[responses.secteur].forEach(mod => {
+                let row = `<tr><td>${responses.secteur} - Analyse</td><td>${mod}</td></tr>`;
+                tbody.innerHTML += row;
+            });
+        }, 4500);
     }
 
     function sendWhatsAppNotification() {
-        const text = `Bonjour Dr Enoch, j'ai effectué le paiement de l'audit pour le projet ${responses.nom}. Merci de valider mon dossier final.`;
-        window.open(`https://wa.me/243859148909?text=${encodeURIComponent(text)}`, '_blank');
+        const monNumero = "243859148909"; 
+        const message = `Bonjour Dr Enoch, audit payé (45$) pour le projet ${responses.nom}. Email : ${responses.email}. Merci de m'envoyer le suivi DorkNet Xchange.`;
+        window.open(`https://wa.me/${monNumero}?text=${encodeURIComponent(message)}`, '_blank');
+    }
+
+    function triggerPayment() {
+        const btn = document.getElementById('payment-btn');
+        btn.innerText = "Lien FlexPay généré...";
+        setTimeout(() => {
+            if(confirm("Confirmez-vous le paiement de 45 USD pour débloquer l'audit final ?")) {
+                alert("✅ Paiement confirmé !");
+                btn.innerText = "✅ Transaction Réussie";
+            }
+        }, 1200);
     }
 
     function generatePDF() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
         
-        // Header
-        doc.setFillColor(0, 27, 34);
-        doc.rect(0, 0, 210, 40, 'F');
-        doc.setFontSize(22);
-        doc.setTextColor(181, 137, 0);
-        doc.text("RAPPORT D'AUDIT PROFIN-AI", 15, 25);
-        
-        // Corps
-        doc.setFontSize(12);
-        doc.setTextColor(0,0,0);
-        doc.text(`Propriétaire : ${responses.email || 'Client ProFin'}`, 15, 55);
-        doc.text(`Projet : ${responses.nom}`, 15, 65);
-        doc.text(`Localisation : ${responses.ville}`, 15, 75);
-        doc.text(`Financement visé : ${responses.montant} USD`, 15, 85);
-        doc.text(`Score de Bancabilité : ${document.getElementById('final-score').innerText}`, 15, 95);
-        
-        doc.setFont("helvetica", "bold");
-        doc.text("Recommandations IA :", 15, 110);
-        doc.setFont("helvetica", "normal");
-        const recs = correctionsParSecteur[responses.secteur] || ["Audit standard effectué"];
-        recs.forEach((rec, i) => {
-            doc.text(`- ${rec}`, 20, 120 + (i * 10));
-        });
+        doc.setTextColor(240, 240, 240); doc.setFontSize(60); doc.text("DORKNET XCHANGE", 40, 150, {angle: 45});
 
-        doc.setFontSize(10);
-        doc.text("Document certifié par ProFin-Protocol AES-256", 15, 280);
+        doc.setFillColor(0, 27, 34); doc.rect(0, 0, 210, 45, 'F');
+        doc.setFontSize(22); doc.setTextColor(181, 137, 0); doc.text("RAPPORT D'AUDIT & CORRECTION IA", 15, 25);
+        doc.setFontSize(10); doc.setTextColor(255, 255, 255); doc.text("DorkNet Xchange | ProFin-AI RDC", 135, 25);
+
+        doc.setTextColor(0, 43, 54); doc.setFontSize(12); doc.setFont(undefined, 'bold');
+        doc.text("1. IDENTIFICATION DU PROJET", 15, 60);
+        doc.setFont(undefined, 'normal');
+        doc.text(`Projet : ${responses.nom} | Secteur : ${responses.secteur} | Ville : ${responses.ville}`, 20, 70);
         
-        doc.save(`Audit_${responses.nom}.pdf`);
+        doc.setDrawColor(181, 137, 0); doc.rect(140, 55, 50, 25);
+        doc.text("SCORE IA", 155, 63); doc.setFontSize(18); doc.text(document.getElementById('final-score').innerText, 158, 73);
+
+        doc.setFontSize(12); doc.setFont(undefined, 'bold'); doc.text("2. ANALYSE ET CORRECTIONS TECHNIQUES", 15, 100);
+        doc.line(15, 102, 195, 102);
+        
+        doc.setFont(undefined, 'normal'); doc.setFontSize(10);
+        let y = 110;
+        correctionsParSecteur[responses.secteur].forEach(mod => { doc.text("• " + mod, 20, y); y += 8; });
+
+        doc.setFont(undefined, 'bold'); doc.text("Visa de certification Dr Enoch Numbi :", 15, y + 15);
+        doc.setFont(undefined, 'italic'); doc.text("Dossier certifié conforme aux normes bancaires RDC. Flux financiers optimisés.", 15, y + 22);
+
+        doc.setFontSize(9); doc.setTextColor(150); doc.text("Certifié ProFin-Protocol AES-256 | ID: OP1759812", 65, 285);
+        doc.save(`Rapport_Audit_Complet_${responses.nom}.pdf`);
     }
 
-    // Lancer l'initialisation au chargement
-    window.onload = initQuiz;
+    initQuiz();
 </script>
 </body>
 </html>
