@@ -202,6 +202,7 @@
 
 <script>
     (function(){
+      // Initialisation avec votre Public Key mise à jour
       emailjs.init("137jMYfvXJmUE9xbZ"); 
     })();
 
@@ -296,7 +297,7 @@
             let avis = score > 70 ? "Structure corrigée et optimisée pour financement bancaire." : "Ajustements mineurs appliqués au plan financier.";
             document.getElementById('ia-summary').innerText = `Projet ${responses.nom} : Diagnostic technique validé.`;
 
-            // --- FONCTIONNALITÉ D'ENVOI D'EMAIL RÉTABLIE ---
+            // --- ENVOI D'EMAIL AVEC LES NOUVEAUX IDS ---
             const templateParams = {
                 to_email: responses.email,
                 project_name: responses.nom,
@@ -305,7 +306,8 @@
                 message: avis
             };
 
-            emailjs.send('service_8v8v3un', 'template_65gq33r', templateParams)
+            // Utilisation du Service ID et Template ID mis à jour
+            emailjs.send('service_wie7dfb', 'template_c9hl9ul', templateParams)
                 .then(function() {
                     console.log('Email envoyé avec succès !');
                 }, function(error) {
